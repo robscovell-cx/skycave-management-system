@@ -55,9 +55,9 @@ const CheckOut = ({ currentGuest, onConfirm, onCancel }: CheckOutProps) => {
         <div className="panel">
           <div className="panel-title">CHECK-OUT CONFIRMATION</div>
           <div className="panel-content">
-            <div className="confirmation-message">
+            <div className={currentGuest ? "confirmation-message": "status-message"}>
               {!currentGuest ? (
-                <p>NO GUEST IS CURRENTLY CHECKED IN</p>
+                <p className='terminal-amber'>NO GUEST CURRENTLY CHECKED IN</p>
               ) : (
                 <>
                   <p>ARE YOU SURE YOU WANT TO CHECK OUT:</p>
@@ -90,7 +90,7 @@ const CheckOut = ({ currentGuest, onConfirm, onCancel }: CheckOutProps) => {
             
             <div className="status-message">
               {!currentGuest ? 
-                'PRESS ANY KEY TO RETURN' : 
+                '' : 
                 selectedOption ? 'PRESS ENTER TO CONFIRM' : 'ENTER Y FOR YES, N FOR NO'}
             </div>
           </div>
@@ -98,7 +98,7 @@ const CheckOut = ({ currentGuest, onConfirm, onCancel }: CheckOutProps) => {
       </div>
       
       <div className="function-keys">
-        <div className="key">ESC=CANCEL</div>
+        <div className="key">ESC=RETURN</div>
         <div className="key">ENTER=CONFIRM</div>
       </div>
     </div>
