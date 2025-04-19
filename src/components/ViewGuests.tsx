@@ -67,10 +67,6 @@ const ViewGuests = ({ guests, onReturn }: ViewGuestsProps) => {
                     <span className="label right-aligned-label">NAME:</span>
                     <span className="value">{`${currentGuest.firstName || ''} ${currentGuest.lastName || ''}`}</span>
                   </div>
-                  <div className="data-row">
-                    <span className="label right-aligned-label">NATIONALITY:</span>
-                    <span className="value">{currentGuest.nationality || 'N/A'}</span>
-                  </div>
                 </div>
                 
                 {/* Contact Information */}
@@ -83,23 +79,6 @@ const ViewGuests = ({ guests, onReturn }: ViewGuestsProps) => {
                   <div className="data-row">
                     <span className="label right-aligned-label">PHONE:</span>
                     <span className="value">{currentGuest.contact?.phone || 'N/A'}</span>
-                  </div>
-                </div>
-                
-                {/* Identification Information */}
-                <div className="data-section">
-                  <h3>IDENTIFICATION</h3>
-                  <div className="data-row">
-                    <span className="label right-aligned-label">ID TYPE:</span>
-                    <span className="value">{currentGuest.identification?.type || 'N/A'}</span>
-                  </div>
-                  <div className="data-row">
-                    <span className="label right-aligned-label">ID NUMBER:</span>
-                    <span className="value">{currentGuest.identification?.number || 'N/A'}</span>
-                  </div>
-                  <div className="data-row">
-                    <span className="label right-aligned-label">ISSUING COUNTRY:</span>
-                    <span className="value">{currentGuest.identification?.issuingCountry || 'N/A'}</span>
                   </div>
                 </div>
                 
