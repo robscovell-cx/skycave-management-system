@@ -71,22 +71,7 @@ const PrintableTM30Form: React.FC<PrintableTM30FormProps> = ({ reportItems, book
               </tr>
             );
           })}
-          {/* Add empty rows to fill out the form */}
-          {[...Array(Math.max(0, 10 - reportItems.length))].map((_, i) => (
-            <tr key={`empty-${i}`} className="empty-row">
-              <td className="col-no">{reportItems.length + i + 1}</td>
-              <td className="col-name"></td>
-              <td className="col-nationality"></td>
-              <td className="col-passport"></td>
-              <td className="col-visa"></td>
-              <td className="col-arrival"></td>
-              <td className="col-expiry"></td>
-              <td className="col-entry"></td>
-              <td className="col-tm"></td>
-              <td className="col-period"></td>
-              <td className="col-relation"></td>
-            </tr>
-          ))}
+          {/* Removed empty rows - only showing actual guests */}
         </tbody>
       </table>
       <div className="tm30-printable-footer">

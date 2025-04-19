@@ -192,21 +192,6 @@ const TM30Report = ({ reportItems, guestBookings, onUpdateItem, onSubmitReport, 
                       <td class="col-relation">${item.relationship}</td>
                     </tr>
                   `}).join('')}
-                  ${[...Array(Math.max(0, 10 - reportItems.length))].map((_, i) => `
-                    <tr class="empty-row">
-                      <td class="col-no">${reportItems.length + i + 1}</td>
-                      <td class="col-name"></td>
-                      <td class="col-nationality"></td>
-                      <td class="col-passport"></td>
-                      <td class="col-visa"></td>
-                      <td class="col-arrival"></td>
-                      <td class="col-expiry"></td>
-                      <td class="col-entry"></td>
-                      <td class="col-tm"></td>
-                      <td class="col-period"></td>
-                      <td class="col-relation"></td>
-                    </tr>
-                  `).join('')}
                 </tbody>
               </table>
               <div class="tm30-printable-footer">
