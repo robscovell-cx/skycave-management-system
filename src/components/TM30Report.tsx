@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import '../styles/mainframe.css';
 import { TM30ReportItem } from '../types/guest';
 import useDateTime from '../hooks/useDateTime';
+import PrintableTM30Form from './PrintableTM30Form';
 
 interface TM30ReportProps {
   reportItems: TM30ReportItem[];
@@ -22,7 +23,27 @@ const TM30Report = ({ reportItems, onUpdateItem, onSubmitReport, onReturn }: TM3
   // Add state for confirmation
   const [showConfirmation, setShowConfirmation] = useState<boolean>(false);
   const [confirmChoice, setConfirmChoice] = useState<'Y' | 'N' | ''>('');
-
+  
+  const printableFormRef = useRef<HTMLDivElement>(null);
+  
+  // Add function to handle printing
+  const handlePrint = () => {
+    // Set the printable form to be visible before printing
+    if (printableFormRef.current) {
+      const originalStyle = printableFormRef.current.style.display;
+      printableFormRef.current.style.display = 'block';
+      
+      // Print the window
+      window.print();
+      
+      // Reset to original style after printing
+      setTimeout(() => {
+        if (printableFormRef.current) {
+          printableFormRef.current.style.display = originalStyle;
+        }
+      }, 500);
+    }
+  };
 
   // Handle key events
   useEffect(() => {
@@ -71,6 +92,9 @@ const TM30Report = ({ reportItems, onUpdateItem, onSubmitReport, onReturn }: TM3
           // Update field value
           updateFieldValue();
         } 
+      } else if (e.key.toLowerCase() === 'p' && reportItems.length > 0) {
+        // Add shortcut key for printing
+        handlePrint();
       } else if (e.key === 'Tab') {
         // Prevent default tab behavior
         e.preventDefault();
@@ -302,6 +326,26 @@ const TM30Report = ({ reportItems, onUpdateItem, onSubmitReport, onReturn }: TM3
                     ))}
                   </div>
                 </div>
+                
+                {/* Add Print Button */}
+                <div className="print-controls" style={{ marginTop: '20px', textAlign: 'center' }}>
+                  <button 
+                    onClick={handlePrint}
+                    className="terminal-button"
+                    style={{
+                      backgroundColor: 'var(--terminal-black)',
+                      color: 'var(--terminal-green)',
+                      border: '1px solid var(--terminal-green)',
+                      padding: '8px 16px',
+                      fontFamily: 'inherit',
+                      fontSize: 'inherit',
+                      cursor: 'pointer',
+                      textTransform: 'uppercase'
+                    }}
+                  >
+                    PRINT TM30 FORM
+                  </button>
+                </div>
               </>
             )}
           </div>
@@ -314,6 +358,12 @@ const TM30Report = ({ reportItems, onUpdateItem, onSubmitReport, onReturn }: TM3
         <div className="key">TAB=NEXT FIELD</div>
         <div className="key">SHIFT+TAB=PREV FIELD</div>
         <div className="key">↑↓=NAVIGATE</div>
+        <div className="key">P=PRINT FORM</div>
+      </div>
+      
+      {/* Hidden Printable Form */}
+      <div ref={printableFormRef} style={{ display: 'none' }}>
+        <PrintableTM30Form reportItems={reportItems} />
       </div>
     </div>
   );
