@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import '../styles/mainframe.css';
 import { Guest } from '../types/guest';
+import useDateTime from '../hooks/useDateTime';
 
 interface CheckOutProps {
   currentGuest: Partial<Guest> | null;
@@ -9,6 +10,9 @@ interface CheckOutProps {
 }
 
 const CheckOut = ({ currentGuest, onConfirm, onCancel }: CheckOutProps) => {
+  // Get current date and time
+  const [currentDate, currentTime] = useDateTime();
+  
   const [selectedOption, setSelectedOption] = useState<'Y' | 'N' | ''>('');
   
   // Handle keyboard navigation
@@ -44,7 +48,7 @@ const CheckOut = ({ currentGuest, onConfirm, onCancel }: CheckOutProps) => {
     <div className="terminal" tabIndex={0}>
       <div className="header">
         <div className="title">GUEST CHECK-OUT</div>
-        <div className="screen-id">CHK002</div>
+        <div className="datetime">{currentDate} {currentTime}</div>
       </div>
 
       <div className="main-content">

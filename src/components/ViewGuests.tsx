@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import '../styles/mainframe.css';
 import { Guest } from '../types/guest';
+import useDateTime from '../hooks/useDateTime';
 
 interface ViewGuestsProps {
   guests: Partial<Guest>[];
@@ -8,16 +9,12 @@ interface ViewGuestsProps {
 }
 
 const ViewGuests = ({ guests, onReturn }: ViewGuestsProps) => {
+  // Get current date and time
+  const [currentDate, currentTime] = useDateTime();
+  
   // Since there's only one guest at a time, we'll use the first guest in the array
   const currentGuest = guests.length > 0 ? guests[0] : null;
   
-  // Handle key presses for navigation
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'F3' || e.key === 'Escape') {
-      onReturn();
-    }
-  };
-
   // Add effect to listen for Escape key
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -37,8 +34,7 @@ const ViewGuests = ({ guests, onReturn }: ViewGuestsProps) => {
   };
 
   return (
-    <div className="terminal" onKeyDown={handleKeyDown} tabIndex={0}>
-      {/* Add custom styles for right-aligned labels */}
+    <div className="terminal" tabIndex={0}>
       <style>
         {`
           .right-aligned-label {
@@ -51,7 +47,7 @@ const ViewGuests = ({ guests, onReturn }: ViewGuestsProps) => {
       </style>
       <div className="header">
         <div className="title">GUEST DETAILS</div>
-        <div className="screen-id">GST001</div>
+        <div className="datetime">{currentDate} {currentTime}</div>
       </div>
 
       <div className="main-content">
