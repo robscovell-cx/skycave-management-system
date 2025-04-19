@@ -122,10 +122,23 @@ function App() {
     };
   }, [currentScreen, selectedOption]);
 
+  // Add a state for showing error messages
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
   // Handle option selection
   const handleOptionSelect = () => {
+    // Reset any previous error messages
+    setErrorMessage(null);
+    
     if (selectedOption === '1') {
-      setCurrentScreen('checkIn');
+      // Check if there are already guests checked in
+      if (guests.length > 0) {
+        // Show error message
+        setErrorMessage("ERROR: A GUEST IS ALREADY CHECKED IN. CHECK THEM OUT FIRST.");
+      } else {
+        // Proceed with check-in
+        setCurrentScreen('checkIn');
+      }
     } else if (selectedOption === '2') {
       setCurrentScreen('checkOut');
     } else if (selectedOption === '3') {
@@ -296,6 +309,13 @@ function App() {
         <div className="panel">
           <div className="panel-title">MAIN MENU</div>
           <div className="panel-content">
+            {/* Display error message if present */}
+            {errorMessage && (
+              <div className="error-message" style={{ color: 'var(--terminal-amber)', marginBottom: '2vh' }}>
+                {errorMessage}
+              </div>
+            )}
+
             <div className="menu-option">
               <span className="option-number">1.</span>
               <span 
