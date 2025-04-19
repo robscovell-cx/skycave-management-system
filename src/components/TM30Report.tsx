@@ -96,12 +96,59 @@ const TM30Report = ({ guests, onReturn }: TM30ReportProps) => {
       } else if (e.key === 'Enter' && selectedItemIndex >= 0 && currentField) {
         // Update the field value
         updateFieldValue();
+      } else if (e.key === 'Tab') {
+        // Prevent default tab behavior
+        e.preventDefault();
+        
+        if (selectedItemIndex >= 0 && currentField) {
+          // Save current field value first
+          updateFieldValue(false);
+          
+          // Move forward or backward based on shift key
+          const fields: (keyof TM30ReportItem)[] = [
+            'nameAndSurname', 'nationality', 'passportNumber', 'typeOfVisa',
+            'dateOfArrivalInThailand', 'expiryDateOfStay', 'pointOfEntry', 'relationship'
+          ];
+          
+          const currentIndex = fields.indexOf(currentField as keyof TM30ReportItem);
+          
+          if (e.shiftKey) {
+            // Move backward (Shift+Tab)
+            if (currentIndex > 0) {
+              // Move to previous field in same row
+              setCurrentField(fields[currentIndex - 1]);
+              setEditValue(reportItems[selectedItemIndex][fields[currentIndex - 1]]);
+            } else if (selectedItemIndex > 0) {
+              // Move to last field of previous row
+              setSelectedItemIndex(prev => prev - 1);
+              setCurrentField(fields[fields.length - 1]);
+              setEditValue(reportItems[selectedItemIndex - 1][fields[fields.length - 1]]);
+            }
+          } else {
+            // Move forward (Tab)
+            if (currentIndex < fields.length - 1) {
+              // Move to next field in same row
+              setCurrentField(fields[currentIndex + 1]);
+              setEditValue(reportItems[selectedItemIndex][fields[currentIndex + 1]]);
+            } else if (selectedItemIndex < reportItems.length - 1) {
+              // Move to first field of next row
+              setSelectedItemIndex(prev => prev + 1);
+              setCurrentField(fields[0]);
+              setEditValue(reportItems[selectedItemIndex + 1][fields[0]]);
+            }
+          }
+        } else if (reportItems.length > 0) {
+          // Start editing the first field of the first row if not in edit mode
+          setSelectedItemIndex(0);
+          setCurrentField('nameAndSurname');
+          setEditValue(reportItems[0]['nameAndSurname']);
+        }
       }
     };
     
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [onReturn, selectedItemIndex, currentField, reportItems.length, editValue]);
+  }, [onReturn, selectedItemIndex, currentField, reportItems.length, editValue, reportItems]);
   
   // Handle selecting a field for editing
   const handleSelectField = (index: number, field: keyof TM30ReportItem) => {
@@ -111,7 +158,7 @@ const TM30Report = ({ guests, onReturn }: TM30ReportProps) => {
   };
   
   // Update the field value in the reportItems state
-  const updateFieldValue = () => {
+  const updateFieldValue = (moveNext = true) => {
     if (selectedItemIndex >= 0 && currentField) {
       setReportItems(prev => {
         const updated = [...prev];
@@ -122,26 +169,28 @@ const TM30Report = ({ guests, onReturn }: TM30ReportProps) => {
         return updated;
       });
       
-      // Move to next field or next record
-      const fields: (keyof TM30ReportItem)[] = [
-        'nameAndSurname', 'nationality', 'passportNumber', 'typeOfVisa',
-        'dateOfArrivalInThailand', 'expiryDateOfStay', 'pointOfEntry', 'relationship'
-      ];
-      
-      const currentIndex = fields.indexOf(currentField as keyof TM30ReportItem);
-      if (currentIndex < fields.length - 1) {
-        // Move to next field
-        setCurrentField(fields[currentIndex + 1]);
-        setEditValue(reportItems[selectedItemIndex][fields[currentIndex + 1]]);
-      } else if (selectedItemIndex < reportItems.length - 1) {
-        // Move to first field of next record
-        setSelectedItemIndex(prev => prev + 1);
-        setCurrentField(fields[0]);
-        setEditValue(reportItems[selectedItemIndex + 1][fields[0]]);
-      } else {
-        // End of records - exit edit mode
-        setSelectedItemIndex(-1);
-        setCurrentField('');
+      // If moveNext is true, automatically advance to the next field
+      if (moveNext) {
+        const fields: (keyof TM30ReportItem)[] = [
+          'nameAndSurname', 'nationality', 'passportNumber', 'typeOfVisa',
+          'dateOfArrivalInThailand', 'expiryDateOfStay', 'pointOfEntry', 'relationship'
+        ];
+        
+        const currentIndex = fields.indexOf(currentField as keyof TM30ReportItem);
+        if (currentIndex < fields.length - 1) {
+          // Move to next field
+          setCurrentField(fields[currentIndex + 1]);
+          setEditValue(reportItems[selectedItemIndex][fields[currentIndex + 1]]);
+        } else if (selectedItemIndex < reportItems.length - 1) {
+          // Move to first field of next record
+          setSelectedItemIndex(prev => prev + 1);
+          setCurrentField(fields[0]);
+          setEditValue(reportItems[selectedItemIndex + 1][fields[0]]);
+        } else {
+          // End of records - exit edit mode
+          setSelectedItemIndex(-1);
+          setCurrentField('');
+        }
       }
     }
   };
@@ -283,6 +332,8 @@ const TM30Report = ({ guests, onReturn }: TM30ReportProps) => {
       <div className="function-keys">
         <div className="key">ESC=RETURN</div>
         <div className="key">ENTER=CONFIRM EDIT</div>
+        <div className="key">TAB=NEXT FIELD</div>
+        <div className="key">SHIFT+TAB=PREV FIELD</div>
         <div className="key">↑↓=NAVIGATE</div>
       </div>
     </div>
