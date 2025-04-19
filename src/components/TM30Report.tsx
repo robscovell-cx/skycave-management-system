@@ -127,6 +127,9 @@ const TM30Report = ({ reportItems, onUpdateItem, onSubmitReport, onReturn }: TM3
   
   // Handle selecting a field for editing
   const handleSelectField = (index: number, field: keyof TM30ReportItem) => {
+    // Don't allow selecting bookingId for editing - it's read-only
+    if (field === 'bookingId') return;
+    
     setSelectedItemIndex(index);
     setCurrentField(field);
     setEditValue(reportItems[index][field]);
@@ -269,26 +272,32 @@ const TM30Report = ({ reportItems, onUpdateItem, onSubmitReport, onReturn }: TM3
                         className={`tm30-table-row ${index === selectedItemIndex ? 'selected' : ''}`}
                         onClick={() => setSelectedItemIndex(index)}
                       >
-                        {Object.entries(item).map(([key, value]) => (
-                          <div 
-                            key={key} 
-                            className={`tm30-table-cell ${selectedItemIndex === index && currentField === key ? 'editing' : ''}`}
-                            style={{ width: columnWidths[key as keyof TM30ReportItem] }}
-                            onClick={() => handleSelectField(index, key as keyof TM30ReportItem)}
-                          >
-                            {selectedItemIndex === index && currentField === key ? (
-                              <input 
-                                type="text" 
-                                className="tm30-input" 
-                                value={editValue}
-                                onChange={(e) => setEditValue(e.target.value)}
-                                autoFocus
-                              />
-                            ) : (
-                              value || '-'
-                            )}
-                          </div>
-                        ))}
+                        {Object.entries(item).map(([key, value]) => {
+                          const isBookingId = key === 'bookingId';
+                          return (
+                            <div 
+                              key={key} 
+                              className={`tm30-table-cell ${selectedItemIndex === index && currentField === key ? 'editing' : ''} ${isBookingId ? 'read-only' : ''}`}
+                              style={{ 
+                                width: columnWidths[key as keyof TM30ReportItem],
+                                color: isBookingId ? 'var(--terminal-amber)' : 'inherit' // Visual indication it's special
+                              }}
+                              onClick={() => handleSelectField(index, key as keyof TM30ReportItem)}
+                            >
+                              {selectedItemIndex === index && currentField === key && !isBookingId ? (
+                                <input 
+                                  type="text" 
+                                  className="tm30-input" 
+                                  value={editValue}
+                                  onChange={(e) => setEditValue(e.target.value)}
+                                  autoFocus
+                                />
+                              ) : (
+                                value || '-'
+                              )}
+                            </div>
+                          );
+                        })}
                       </div>
                     ))}
                   </div>
