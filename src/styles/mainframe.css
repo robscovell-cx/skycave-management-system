@@ -194,3 +194,43 @@ body, html {
     justify-content: flex-start;
   }
 }
+
+.menu-option {
+  margin: 1vh 0;
+  display: flex;
+  align-items: center;
+}
+
+.option-number {
+  font-weight: bold;
+  margin-right: 1vw;
+  min-width: 1.5rem;
+}
+
+.option-text {
+  font-weight: normal;
+}
+
+.terminal-input {
+  background-color: var(--terminal-black);
+  color: var(--terminal-green);
+  border: none;
+  border-bottom: 1px solid var(--terminal-green);
+  font-family: inherit;
+  font-size: inherit;
+  padding: 0 0.5vw;
+  margin-left: 1vw;
+  text-transform: uppercase;
+  caret-color: var(--terminal-green);
+  width: 2rem;
+}
+
+.terminal-input:focus {
+  outline: none;
+}
+
+.status-message {
+  margin-top: 4vh;
+  color: var(--terminal-amber);
+  font-weight: bold;
+}

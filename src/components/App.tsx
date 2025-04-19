@@ -2,9 +2,9 @@ import { useState, useEffect } from 'react'
 import '../styles/mainframe.css'
 
 function App() {
-  const [count, setCount] = useState(0)
   const [currentDate, setCurrentDate] = useState('')
   const [currentTime, setCurrentTime] = useState('')
+  const [selectedOption, setSelectedOption] = useState('')
 
   useEffect(() => {
     // Function to update the date and time
@@ -32,29 +32,41 @@ function App() {
       </div>
 
       <div className="main-content">
-
         <div className="panel">
           <div className="panel-title">MAIN MENU</div>
           <div className="panel-content">
-            <div className="data-row">
-              <span className="label">TRANSACTION COUNT:</span>
-              <span className="value">{count}</span>
+            <div className="menu-option">
+              <span className="option-number">1.</span>
+              <span className="option-text">CHECK IN GUEST</span>
             </div>
-
-            <div className="data-row">
-              <span className="label">STATUS:</span>
-              <span className="value">READY</span>
+            <div className="menu-option">
+              <span className="option-number">2.</span>
+              <span className="option-text">CHECK OUT GUEST</span>
             </div>
-
+            
             <div className="input-field">
               <span className="label">ENTER SELECTION:</span>
-              <span className="input-area">_____</span>
+              <input 
+                type="text" 
+                className="terminal-input"
+                value={selectedOption}
+                onChange={(e) => setSelectedOption(e.target.value)}
+                maxLength={1}
+                autoFocus
+              />
+            </div>
+            
+            <div className="status-message">
+              READY FOR INPUT
             </div>
           </div>
-          <div className="action-button">
-            <button onClick={() => setCount(count + 1)}>PROCESS</button>
-          </div>
         </div>
+      </div>
+      
+      <div className="function-keys">
+        <div className="key">F1=HELP</div>
+        <div className="key">F3=EXIT</div>
+        <div className="key">ENTER=SUBMIT</div>
       </div>
     </div>
   )
