@@ -286,6 +286,9 @@ function App() {
     <div className="terminal">
       <div className="header">
         <div className="title">SKYCAVE MANAGEMENT SYSTEM</div>
+        <div className="booking-id">
+          {currentGuest?.bookings?.[0]?.bookingId || 'NO BOOKING'}
+        </div>
         <div className="datetime">{currentDate} {currentTime}</div>
       </div>
 

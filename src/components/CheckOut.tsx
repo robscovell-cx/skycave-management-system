@@ -48,6 +48,9 @@ const CheckOut = ({ currentGuest, onConfirm, onCancel }: CheckOutProps) => {
     <div className="terminal" tabIndex={0}>
       <div className="header">
         <div className="title">GUEST CHECK-OUT</div>
+        <div className="booking-id">
+          {currentGuest?.bookings?.[0]?.bookingId || 'NO BOOKING'}
+        </div>
         <div className="datetime">{currentDate} {currentTime}</div>
       </div>
 

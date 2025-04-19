@@ -100,6 +100,9 @@ const CheckIn = ({ onReturn, onSubmit }: CheckInProps) => {
     <div className="terminal" onKeyDown={handleKeyDown} tabIndex={0}>
       <div className="header">
         <div className="title">GUEST CHECK-IN</div>
+        <div className="booking-id">
+          {guestData.bookings?.[0]?.bookingId || 'NEW BOOKING'}
+        </div>
         <div className="screen-id">CHK001</div>
       </div>
 

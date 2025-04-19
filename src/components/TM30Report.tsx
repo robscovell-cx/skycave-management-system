@@ -176,11 +176,15 @@ const TM30Report = ({ reportItems, onUpdateItem, onSubmitReport, onReturn }: TM3
     pointOfEntry: 120,
     relationship: 200,
   };
+
+  // Find the booking ID from the first report item if available
+  const currentBookingId = reportItems.length > 0 ? reportItems[0].bookingId : 'NO BOOKING';
   
   return (
     <div className="terminal" tabIndex={0}>
       <div className="header">
         <div className="title">TM30 FOREIGN GUEST REPORT</div>
+        <div className="booking-id">{currentBookingId}</div>
         <div className="datetime">{currentDate} {currentTime}</div>
       </div>
 

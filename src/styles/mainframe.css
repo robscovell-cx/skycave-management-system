@@ -48,11 +48,20 @@ body, html {
   padding: 0.5vh 1vw 0.5vh 1vw;
   margin: 0;
   flex-wrap: wrap;
+  position: relative;
 }
 
 .title {
   font-weight: bold;
   font-size: 1.5rem;
+}
+
+.booking-id {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  font-weight: bold;
+  color: var(--terminal-amber);
 }
 
 .main-content {
