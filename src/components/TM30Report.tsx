@@ -23,19 +23,6 @@ const TM30Report = ({ reportItems, onUpdateItem, onSubmitReport, onReturn }: TM3
   const [showConfirmation, setShowConfirmation] = useState<boolean>(false);
   const [confirmChoice, setConfirmChoice] = useState<'Y' | 'N' | ''>('');
 
-  // Check if all fields are complete
-  const areAllFieldsComplete = (): boolean => {
-    return reportItems.every(item => 
-      item.nameAndSurname.trim() !== '' && 
-      item.nationality.trim() !== '' && 
-      item.passportNumber.trim() !== '' && 
-      item.typeOfVisa.trim() !== '' && 
-      item.dateOfArrivalInThailand.trim() !== '' && 
-      item.expiryDateOfStay.trim() !== '' && 
-      item.pointOfEntry.trim() !== '' && 
-      item.relationship.trim() !== ''
-    );
-  };
 
   // Handle key events
   useEffect(() => {
@@ -83,10 +70,7 @@ const TM30Report = ({ reportItems, onUpdateItem, onSubmitReport, onReturn }: TM3
         if (selectedItemIndex >= 0 && currentField) {
           // Update field value
           updateFieldValue();
-        } else if (areAllFieldsComplete()) {
-          // Show confirmation when not in edit mode and fields are complete
-          setShowConfirmation(true);
-        }
+        } 
       } else if (e.key === 'Tab') {
         // Prevent default tab behavior
         e.preventDefault();
@@ -97,7 +81,7 @@ const TM30Report = ({ reportItems, onUpdateItem, onSubmitReport, onReturn }: TM3
           
           // Move forward or backward based on shift key
           const fields: (keyof TM30ReportItem)[] = [
-            'nameAndSurname', 'nationality', 'passportNumber', 'typeOfVisa',
+            'bookingId', 'nameAndSurname', 'nationality', 'passportNumber', 'typeOfVisa',
             'dateOfArrivalInThailand', 'expiryDateOfStay', 'pointOfEntry', 'relationship'
           ];
           
@@ -131,8 +115,8 @@ const TM30Report = ({ reportItems, onUpdateItem, onSubmitReport, onReturn }: TM3
         } else if (reportItems.length > 0) {
           // Start editing the first field of the first row if not in edit mode
           setSelectedItemIndex(0);
-          setCurrentField('nameAndSurname');
-          setEditValue(reportItems[0]['nameAndSurname']);
+          setCurrentField('bookingId');
+          setEditValue(reportItems[0]['bookingId']);
         }
       }
     };
@@ -157,7 +141,7 @@ const TM30Report = ({ reportItems, onUpdateItem, onSubmitReport, onReturn }: TM3
       // If moveNext is true, automatically advance to the next field
       if (moveNext) {
         const fields: (keyof TM30ReportItem)[] = [
-          'nameAndSurname', 'nationality', 'passportNumber', 'typeOfVisa',
+          'bookingId', 'nameAndSurname', 'nationality', 'passportNumber', 'typeOfVisa',
           'dateOfArrivalInThailand', 'expiryDateOfStay', 'pointOfEntry', 'relationship'
         ];
         
@@ -182,14 +166,15 @@ const TM30Report = ({ reportItems, onUpdateItem, onSubmitReport, onReturn }: TM3
 
   // Define table column widths
   const columnWidths = {
-    nameAndSurname: 200,
+    bookingId: 120,
+    nameAndSurname: 180,
     nationality: 120,
     passportNumber: 120,
     typeOfVisa: 100,
     dateOfArrivalInThailand: 120,
     expiryDateOfStay: 120,
     pointOfEntry: 120,
-    relationship: 200, // Doubled from 100 to 200
+    relationship: 200,
   };
   
   return (
@@ -262,6 +247,7 @@ const TM30Report = ({ reportItems, onUpdateItem, onSubmitReport, onReturn }: TM3
                   </style>
                   
                   <div className="tm30-table-header">
+                    <div className="tm30-table-cell" style={{ width: columnWidths.bookingId }}>BOOKING ID</div>
                     <div className="tm30-table-cell" style={{ width: columnWidths.nameAndSurname }}>NAME & SURNAME</div>
                     <div className="tm30-table-cell" style={{ width: columnWidths.nationality }}>NATIONALITY</div>
                     <div className="tm30-table-cell" style={{ width: columnWidths.passportNumber }}>PASSPORT NO.</div>
@@ -303,59 +289,6 @@ const TM30Report = ({ reportItems, onUpdateItem, onSubmitReport, onReturn }: TM3
                     ))}
                   </div>
                 </div>
-                
-                {areAllFieldsComplete() && !showConfirmation && selectedItemIndex < 0 && (
-                  <div className="confirmation-options" style={{ marginTop: "20px" }}>
-                    {showConfirmation ? (
-                      <div className="input-field">
-                        <span className="label">ENTER CHOICE (Y/N):</span>
-                        <input 
-                          type="text" 
-                          className="terminal-input"
-                          value={confirmChoice}
-                          onChange={(e) => {
-                            const value = e.target.value.toUpperCase();
-                            if (value === 'Y' || value === 'N' || value === '') {
-                              setConfirmChoice(value as 'Y' | 'N' | '');
-                            }
-                          }}
-                          maxLength={1}
-                          autoFocus
-                        />
-                      </div>
-                    ) : (
-                      <div className="status-message">
-                        PRESS ENTER TO CONFIRM SUBMISSION
-                      </div>
-                    )}
-                  </div>
-                )}
-                
-                {showConfirmation && (
-                  <div className="confirmation-dialog">
-                    <div className="confirmation-message">
-                      <p>CONFIRM SUBMISSION OF TM30 REPORT?</p>
-                    </div>
-                    <div className="confirmation-options">
-                      <div className="input-field">
-                        <span className="label">ENTER CHOICE (Y/N):</span>
-                        <input 
-                          type="text" 
-                          className="terminal-input"
-                          value={confirmChoice}
-                          onChange={(e) => {
-                            const value = e.target.value.toUpperCase();
-                            if (value === 'Y' || value === 'N' || value === '') {
-                              setConfirmChoice(value as 'Y' | 'N' | '');
-                            }
-                          }}
-                          maxLength={1}
-                          autoFocus
-                        />
-                      </div>
-                    </div>
-                  </div>
-                )}
               </>
             )}
             
@@ -364,8 +297,6 @@ const TM30Report = ({ reportItems, onUpdateItem, onSubmitReport, onReturn }: TM3
                 confirmChoice ? 'PRESS ENTER TO CONFIRM' : 'ENTER Y FOR YES, N FOR NO' :
                 selectedItemIndex >= 0 ? 
                   'EDITING FIELD - PRESS ENTER TO CONFIRM, ESC TO CANCEL' : 
-                  areAllFieldsComplete() ?
-                    '' :
                     'SELECT A FIELD TO EDIT - PRESS ESC TO RETURN'
               }
             </div>
@@ -379,9 +310,6 @@ const TM30Report = ({ reportItems, onUpdateItem, onSubmitReport, onReturn }: TM3
         <div className="key">TAB=NEXT FIELD</div>
         <div className="key">SHIFT+TAB=PREV FIELD</div>
         <div className="key">↑↓=NAVIGATE</div>
-        {!showConfirmation && areAllFieldsComplete() && selectedItemIndex < 0 && (
-          <div className="key">ENTER=SUBMIT</div>
-        )}
       </div>
     </div>
   );

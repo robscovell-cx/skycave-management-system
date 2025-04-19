@@ -97,6 +97,7 @@ export interface GuestFeedback {
  * Represents a TM40 report item for Thai immigration reporting
  */
 export interface TM30ReportItem {
+  bookingId: string; // Reference to connect with the original booking
   nameAndSurname: string;
   nationality: string;
   passportNumber: string;

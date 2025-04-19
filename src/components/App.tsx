@@ -170,6 +170,9 @@ function App() {
     let items: TM30ReportItem[] = [];
     
     guests.forEach(guest => {
+      // Get the current booking ID
+      const currentBookingId = guest.bookings?.[0]?.bookingId || '';
+      
       // Add the main guest
       if (guest.firstName && guest.lastName) {
         items.push({
@@ -181,6 +184,7 @@ function App() {
           expiryDateOfStay: '',
           pointOfEntry: '',
           relationship: 'PRIMARY',
+          bookingId: currentBookingId
         });
         
         // Add accompanying adults and children if any
@@ -197,6 +201,7 @@ function App() {
               expiryDateOfStay: '',
               pointOfEntry: '',
               relationship: 'ACCOMPANYING',
+              bookingId: currentBookingId
             });
           }
           
@@ -211,6 +216,7 @@ function App() {
               expiryDateOfStay: '',
               pointOfEntry: '',
               relationship: 'CHILD',
+              bookingId: currentBookingId
             });
           }
         }
