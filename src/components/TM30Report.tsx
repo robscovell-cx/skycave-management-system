@@ -247,7 +247,6 @@ const TM30Report = ({ reportItems, onUpdateItem, onSubmitReport, onReturn }: TM3
                   </style>
                   
                   <div className="tm30-table-header">
-                    <div className="tm30-table-cell" style={{ width: columnWidths.bookingId }}>BOOKING ID</div>
                     <div className="tm30-table-cell" style={{ width: columnWidths.nameAndSurname }}>NAME & SURNAME</div>
                     <div className="tm30-table-cell" style={{ width: columnWidths.nationality }}>NATIONALITY</div>
                     <div className="tm30-table-cell" style={{ width: columnWidths.passportNumber }}>PASSPORT NO.</div>
@@ -256,6 +255,7 @@ const TM30Report = ({ reportItems, onUpdateItem, onSubmitReport, onReturn }: TM3
                     <div className="tm30-table-cell" style={{ width: columnWidths.expiryDateOfStay }}>EXPIRY DATE</div>
                     <div className="tm30-table-cell" style={{ width: columnWidths.pointOfEntry }}>ENTRY POINT</div>
                     <div className="tm30-table-cell" style={{ width: columnWidths.relationship }}>RELATIONSHIP</div>
+                    <div className="tm30-table-cell" style={{ width: columnWidths.bookingId }}>BOOKING ID</div>
                   </div>
                   
                   <div className="tm30-table-body">
@@ -291,15 +291,6 @@ const TM30Report = ({ reportItems, onUpdateItem, onSubmitReport, onReturn }: TM3
                 </div>
               </>
             )}
-            
-            <div className="status-message">
-              {showConfirmation ? 
-                confirmChoice ? 'PRESS ENTER TO CONFIRM' : 'ENTER Y FOR YES, N FOR NO' :
-                selectedItemIndex >= 0 ? 
-                  'EDITING FIELD - PRESS ENTER TO CONFIRM, ESC TO CANCEL' : 
-                    'SELECT A FIELD TO EDIT - PRESS ESC TO RETURN'
-              }
-            </div>
           </div>
         </div>
       </div>

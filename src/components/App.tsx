@@ -148,6 +148,8 @@ function App() {
   const handleGuestCheckOut = () => {
     // Clear the guests list - in a real app you might mark them as checked out instead
     setGuests([]);
+    // Also clear the TM30 report data
+    setTm30ReportItems([]);
     // Return to main screen
     setCurrentScreen('main');
     setSelectedOption('');
@@ -335,7 +337,12 @@ function App() {
             </div>
             <div className="menu-option">
               <span className="option-number">4.</span>
-              <span className="option-text">TM30 REPORT</span>
+              <span 
+                className="option-text"
+                style={{ 
+                  color: guests.length === 0 ? 'var(--terminal-amber)' : 'inherit'
+                }}
+              >TM30 REPORT</span>
               {guests.length === 0 && (
                 <span className="option-status">
                   [NO GUESTS TO REPORT]
