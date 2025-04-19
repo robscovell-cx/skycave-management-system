@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import '../styles/mainframe.css';
-import { Guest, Booking, Identification } from '../types/guest';
+import { Guest, Identification } from '../types/guest';
 
 interface CheckInProps {
   onReturn: () => void;
