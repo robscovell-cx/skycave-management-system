@@ -20,14 +20,14 @@ const CheckOut = ({ currentGuest, onConfirm, onCancel }: CheckOutProps) => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape' || e.key === 'F3') {
         onCancel();
-      } else if (e.key === 'y' || e.key === 'Y') {
+      } else if (e.key.toLowerCase() === 'y') {
         setSelectedOption('Y');
-      } else if (e.key === 'n' || e.key === 'N') {
+      } else if (e.key.toLowerCase() === 'n') {
         setSelectedOption('N');
       } else if (e.key === 'Enter') {
-        if (selectedOption === 'Y') {
+        if (selectedOption.toUpperCase() === 'Y') {
           onConfirm();
-        } else if (selectedOption === 'N') {
+        } else if (selectedOption.toUpperCase() === 'N') {
           onCancel();
         }
       }
@@ -79,9 +79,10 @@ const CheckOut = ({ currentGuest, onConfirm, onCancel }: CheckOutProps) => {
                     className="terminal-input"
                     value={selectedOption}
                     onChange={(e) => {
-                      const value = e.target.value.toUpperCase();
-                      if (value === 'Y' || value === 'N' || value === '') {
-                        setSelectedOption(value as 'Y' | 'N' | '');
+                      const value = e.target.value;
+                      // Accept any case but store normalized for consistency
+                      if (value.toUpperCase() === 'Y' || value.toUpperCase() === 'N' || value === '') {
+                        setSelectedOption(value.toUpperCase() as 'Y' | 'N' | '');
                       }
                     }}
                     maxLength={1}

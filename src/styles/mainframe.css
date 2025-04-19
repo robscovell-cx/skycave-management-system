@@ -247,7 +247,8 @@ body, html {
   font-size: inherit;
   padding: 0 0.5vw;
   margin-left: 1vw;
-  text-transform: uppercase;
+  /* Remove text-transform to allow lowercase input */
+  /* text-transform: uppercase; */
   width: 0.5rem;
   position: relative;
 }
@@ -259,7 +260,6 @@ body, html {
 .terminal-input.number-input {
   width: 60px;
 }
-
 
 .terminal-input:focus {
   outline: none;

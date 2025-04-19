@@ -102,11 +102,12 @@ function App() {
       if (currentScreen !== 'main') return;
       
       // Check if the pressed key is a number key (1, 2, 3, or 4)
-      if (event.key === '1' || event.key === '2' || event.key === '3' || event.key === '4') {
-        setSelectedOption(event.key);
-      } else if (event.key === 'Enter') {
+      const key = event.key;
+      if (key === '1' || key === '2' || key === '3' || key === '4') {
+        setSelectedOption(key);
+      } else if (key === 'Enter') {
         handleOptionSelect();
-      } else if (event.key === 'Escape') {
+      } else if (key === 'Escape') {
         // Add escape key handler for main screen 
         // (could exit the app or show confirmation)
         console.log('Exit application requested');

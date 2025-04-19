@@ -34,10 +34,10 @@ const TM30Report = ({ reportItems, onUpdateItem, onSubmitReport, onReturn }: TM3
         } else if (e.key.toLowerCase() === 'n') {
           setConfirmChoice('N');
         } else if (e.key === 'Enter') {
-          if (confirmChoice === 'Y') {
+          if (confirmChoice.toUpperCase() === 'Y') {
             // Submit report and return to main menu
             onSubmitReport();
-          } else if (confirmChoice === 'N') {
+          } else if (confirmChoice.toUpperCase() === 'N') {
             // Cancel confirmation
             setShowConfirmation(false);
             setConfirmChoice('');
