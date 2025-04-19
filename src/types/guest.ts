@@ -94,6 +94,20 @@ export interface GuestFeedback {
 }
 
 /**
+ * Represents a TM40 report item for Thai immigration reporting
+ */
+export interface TM30ReportItem {
+  nameAndSurname: string;
+  nationality: string;
+  passportNumber: string;
+  typeOfVisa: string;
+  dateOfArrivalInThailand: string; // Using string for plain text entry
+  expiryDateOfStay: string; // Using string for plain text entry
+  pointOfEntry: string;
+  relationship: string;
+}
+
+/**
  * Guest document type for database operations
  */
 export type GuestDocument = Guest & {

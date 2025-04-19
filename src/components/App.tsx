@@ -3,10 +3,11 @@ import '../styles/mainframe.css'
 import CheckIn from './CheckIn'
 import ViewGuests from './ViewGuests'
 import CheckOut from './CheckOut'
+import TM30Report from './TM30Report'
 import { Guest } from '../types/guest'
 
 // Define screens for navigation
-type Screen = 'main' | 'checkIn' | 'checkOut' | 'viewGuests';
+type Screen = 'main' | 'checkIn' | 'checkOut' | 'viewGuests' | 'tm30Report';
 
 // Local storage key for guest data
 const GUESTS_STORAGE_KEY = 'skycave_guests';
@@ -79,8 +80,8 @@ function App() {
       // Only process keydown events when on main screen
       if (currentScreen !== 'main') return;
       
-      // Check if the pressed key is a number key (1, 2, or 3)
-      if (event.key === '1' || event.key === '2' || event.key === '3') {
+      // Check if the pressed key is a number key (1, 2, 3, or 4)
+      if (event.key === '1' || event.key === '2' || event.key === '3' || event.key === '4') {
         setSelectedOption(event.key);
       } else if (event.key === 'Enter') {
         handleOptionSelect();
@@ -108,6 +109,8 @@ function App() {
       setCurrentScreen('checkOut');
     } else if (selectedOption === '3') {
       setCurrentScreen('viewGuests');
+    } else if (selectedOption === '4') {
+      setCurrentScreen('tm30Report');
     }
   };
 
@@ -152,6 +155,8 @@ function App() {
       onConfirm={handleGuestCheckOut} 
       onCancel={handleCancelCheckOut}
     />;
+  } else if (currentScreen === 'tm30Report') {
+    return <TM30Report guests={guests} onReturn={handleReturn} />;
   }
 
   // Main menu screen
@@ -205,6 +210,15 @@ function App() {
               {guests.length === 0 && (
                 <span className="option-status">
                   [NO GUESTS CHECKED IN]
+                </span>
+              )}
+            </div>
+            <div className="menu-option">
+              <span className="option-number">4.</span>
+              <span className="option-text">TM30 REPORT</span>
+              {guests.length === 0 && (
+                <span className="option-status">
+                  [NO GUESTS TO REPORT]
                 </span>
               )}
             </div>
