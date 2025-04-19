@@ -35,9 +35,20 @@ const ViewGuests = ({ guests, onReturn }: ViewGuestsProps) => {
     if (!date) return 'N/A';
     return new Date(date).toLocaleDateString('en-GB');
   };
-  
+
   return (
     <div className="terminal" onKeyDown={handleKeyDown} tabIndex={0}>
+      {/* Add custom styles for right-aligned labels */}
+      <style>
+        {`
+          .right-aligned-label {
+            text-align: right;
+            padding-right: 10px;
+            width: 200px;
+            display: inline-block;
+          }
+        `}
+      </style>
       <div className="header">
         <div className="title">GUEST DETAILS</div>
         <div className="screen-id">GST001</div>
@@ -57,11 +68,11 @@ const ViewGuests = ({ guests, onReturn }: ViewGuestsProps) => {
                 <div className="data-section">
                   <h3>PERSONAL INFORMATION</h3>
                   <div className="data-row">
-                    <span className="label">NAME:</span>
+                    <span className="label right-aligned-label">NAME:</span>
                     <span className="value">{`${currentGuest.firstName || ''} ${currentGuest.lastName || ''}`}</span>
                   </div>
                   <div className="data-row">
-                    <span className="label">NATIONALITY:</span>
+                    <span className="label right-aligned-label">NATIONALITY:</span>
                     <span className="value">{currentGuest.nationality || 'N/A'}</span>
                   </div>
                 </div>
@@ -70,11 +81,11 @@ const ViewGuests = ({ guests, onReturn }: ViewGuestsProps) => {
                 <div className="data-section">
                   <h3>CONTACT INFORMATION</h3>
                   <div className="data-row">
-                    <span className="label">EMAIL:</span>
+                    <span className="label right-aligned-label">EMAIL:</span>
                     <span className="value">{currentGuest.contact?.email || 'N/A'}</span>
                   </div>
                   <div className="data-row">
-                    <span className="label">PHONE:</span>
+                    <span className="label right-aligned-label">PHONE:</span>
                     <span className="value">{currentGuest.contact?.phone || 'N/A'}</span>
                   </div>
                 </div>
@@ -83,15 +94,15 @@ const ViewGuests = ({ guests, onReturn }: ViewGuestsProps) => {
                 <div className="data-section">
                   <h3>IDENTIFICATION</h3>
                   <div className="data-row">
-                    <span className="label">ID TYPE:</span>
+                    <span className="label right-aligned-label">ID TYPE:</span>
                     <span className="value">{currentGuest.identification?.type || 'N/A'}</span>
                   </div>
                   <div className="data-row">
-                    <span className="label">ID NUMBER:</span>
+                    <span className="label right-aligned-label">ID NUMBER:</span>
                     <span className="value">{currentGuest.identification?.number || 'N/A'}</span>
                   </div>
                   <div className="data-row">
-                    <span className="label">ISSUING COUNTRY:</span>
+                    <span className="label right-aligned-label">ISSUING COUNTRY:</span>
                     <span className="value">{currentGuest.identification?.issuingCountry || 'N/A'}</span>
                   </div>
                 </div>
@@ -102,19 +113,19 @@ const ViewGuests = ({ guests, onReturn }: ViewGuestsProps) => {
                   {currentGuest.bookings && currentGuest.bookings.length > 0 ? (
                     <>
                       <div className="data-row">
-                        <span className="label">BOOKING ID:</span>
+                        <span className="label right-aligned-label">BOOKING ID:</span>
                         <span className="value">{currentGuest.bookings[0].bookingId || 'N/A'}</span>
                       </div>
                       <div className="data-row">
-                        <span className="label">CHECK-IN DATE:</span>
+                        <span className="label right-aligned-label">CHECK-IN DATE:</span>
                         <span className="value">{formatDate(currentGuest.bookings[0].checkInDate)}</span>
                       </div>
                       <div className="data-row">
-                        <span className="label">NUMBER OF NIGHTS:</span>
+                        <span className="label right-aligned-label">NUMBER OF NIGHTS:</span>
                         <span className="value">{currentGuest.bookings[0].numberOfNights || 'N/A'}</span>
                       </div>
                       <div className="data-row">
-                        <span className="label">NUMBER OF GUESTS:</span>
+                        <span className="label right-aligned-label">NUMBER OF GUESTS:</span>
                         <span className="value">
                           {currentGuest.bookings[0].numberOfGuests 
                             ? `${currentGuest.bookings[0].numberOfGuests.adults} ADULTS / ${currentGuest.bookings[0].numberOfGuests.children} CHILDREN` 

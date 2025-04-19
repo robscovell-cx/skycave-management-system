@@ -131,15 +131,45 @@ function App() {
           <div className="panel-content">
             <div className="menu-option">
               <span className="option-number">1.</span>
-              <span className="option-text">CHECK IN GUEST</span>
+              <span 
+                className="option-text"
+                style={{ 
+                  color: guests.length > 0 ? 'var(--terminal-amber)' : 'inherit'
+                }}
+              >CHECK IN GUEST</span>
+              {guests.length > 0 && (
+                <span className="option-status">
+                  [GUEST ALREADY CHECKED IN]
+                </span>
+              )}
             </div>
             <div className="menu-option">
               <span className="option-number">2.</span>
-              <span className="option-text">CHECK OUT GUEST</span>
+              <span 
+                className="option-text"
+                style={{ 
+                  color: guests.length === 0 ? 'var(--terminal-amber)' : 'inherit'
+                }}
+              >CHECK OUT GUEST</span>
+              {guests.length === 0 && (
+                <span className="option-status">
+                  [NO GUESTS TO CHECK OUT]
+                </span>
+              )}
             </div>
             <div className="menu-option">
               <span className="option-number">3.</span>
-              <span className="option-text">VIEW CHECKED-IN GUESTS</span>
+              <span 
+                className="option-text"
+                style={{ 
+                  color: guests.length === 0 ? 'var(--terminal-amber)' : 'inherit'
+                }}
+              >VIEW CHECKED-IN GUESTS</span>
+              {guests.length === 0 && (
+                <span className="option-status">
+                  [NO GUESTS CHECKED IN]
+                </span>
+              )}
             </div>
             
             <div className="input-field">
