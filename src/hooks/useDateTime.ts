@@ -12,7 +12,8 @@ const useDateTime = (): [string, string] => {
     // Function to update the date and time
     const updateDateTime = () => {
       const now = new Date();
-      setCurrentDate(now.toLocaleDateString('en-GB')); // dd/mm/yyyy format
+      // Use ISO date format (YYYY-MM-DD)
+      setCurrentDate(now.toISOString().split('T')[0]);
       setCurrentTime(now.toLocaleTimeString('en-GB'));
     };
 

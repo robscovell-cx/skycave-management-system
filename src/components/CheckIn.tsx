@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import '../styles/mainframe.css';
 import { Guest } from '../types/guest';
 
@@ -9,31 +9,35 @@ interface CheckInProps {
 
 const CheckIn = ({ onReturn, onSubmit }: CheckInProps) => {
   const [currentField, setCurrentField] = useState(0);
-  const [guestData, setGuestData] = useState<Partial<Guest>>({
-    firstName: '',
-    lastName: '',
-    nationality: '',
-    contact: {
-      email: '',
-      phone: '',
-    },
-    identification: {
-      type: 'passport',
-      number: '',
-      issuingCountry: '',
-      expirationDate: new Date(),
-    },
-    bookings: [{
-      bookingId: `BK-${Math.floor(100000 + Math.random() * 900000)}`,
-      checkInDate: new Date(),
-      checkOutDate: new Date(Date.now() + 86400000), // Next day
-      numberOfNights: 1,
-      numberOfGuests: { adults: 1, children: 0 },
-      status: 'confirmed',
-      paymentStatus: 'pending',
-      totalAmount: { currency: 'USD', amount: 0 },
-      dateMade: new Date()
-    }]
+  const [guestData, setGuestData] = useState<Partial<Guest>>(() => {
+    // Generate the initial state with today's date
+    const today = new Date();
+    
+    return {
+      firstName: '',
+      lastName: '',
+      nationality: '',
+      contact: {
+        email: '',
+        phone: '',
+      },
+      identification: {
+        type: 'passport',
+        number: '',
+        issuingCountry: '',
+        expirationDate: new Date(),
+      },
+      bookings: [{
+        bookingId: `BK-${Math.floor(100000 + Math.random() * 900000)}`,
+        checkInDate: today, // Always set to today
+        numberOfNights: 1,
+        numberOfGuests: { adults: 1, children: 0 },
+        status: 'confirmed',
+        paymentStatus: 'pending',
+        totalAmount: { currency: 'USD', amount: 0 },
+        dateMade: today // Also use today's date for dateMade
+      }]
+    };
   });
 
   const fields = [
@@ -46,8 +50,9 @@ const CheckIn = ({ onReturn, onSubmit }: CheckInProps) => {
     { id: 'children', label: 'CHILD GUESTS', type: 'number', min: 0, max: 10, path: 'bookings[0].numberOfGuests.children' },
   ];
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>, fieldId: string, path?: string) => {
-    const value = e.target.value;
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>, fieldId: string, path?: string, isNumber: boolean = false) => {
+    // Convert value to number if it's a number input
+    const value = isNumber ? Number(e.target.value) : e.target.value;
     
     if (path) {
       // Handle nested properties using the path
@@ -122,7 +127,7 @@ const CheckIn = ({ onReturn, onSubmit }: CheckInProps) => {
                       className="terminal-input number-input"
                       min={field.min}
                       max={field.max}
-                      onChange={(e) => handleChange(e, field.id, field.path)}
+                      onChange={(e) => handleChange(e, field.id, field.path, true)} // Pass true for number inputs
                       autoFocus={index === currentField}
                     />
                   ) : (
@@ -130,7 +135,7 @@ const CheckIn = ({ onReturn, onSubmit }: CheckInProps) => {
                       type="text"
                       className="terminal-input text-input"
                       maxLength={field.maxLength}
-                      onChange={(e) => handleChange(e, field.id, field.path)}
+                      onChange={(e) => handleChange(e, field.id, field.path, false)}
                       autoFocus={index === currentField}
                     />
                   )}

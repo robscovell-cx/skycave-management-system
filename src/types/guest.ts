@@ -28,7 +28,6 @@ export interface Identification {
 export interface Booking {
   bookingId: string;
   checkInDate: Date;
-  checkOutDate: Date;
   numberOfNights: number;
   numberOfGuests: {
     adults: number;

@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import '../styles/mainframe.css';
 import { Guest } from '../types/guest';
 import useDateTime from '../hooks/useDateTime';
+import { formatISODate } from '../utils/dateUtils';
 
 interface ViewGuestsProps {
   guests: Partial<Guest>[];
@@ -27,10 +28,10 @@ const ViewGuests = ({ guests, onReturn }: ViewGuestsProps) => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [onReturn]);
 
-  // Format date for display
+  // Format date for display using ISO format
   const formatDate = (date?: Date) => {
     if (!date) return 'N/A';
-    return new Date(date).toLocaleDateString('en-GB');
+    return formatISODate(new Date(date));
   };
 
   return (

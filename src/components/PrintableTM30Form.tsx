@@ -1,15 +1,16 @@
 import React from 'react';
 import { TM30ReportItem, Booking } from '../types/guest';
 import '../styles/printableTM30.css';
+import { formatISODate, calculateCheckoutDate } from '../utils/dateUtils';
 
 interface PrintableTM30FormProps {
   reportItems: TM30ReportItem[];
   bookings?: Record<string, Booking>; // Map of bookingIds to Booking objects
 }
 
-// Helper function to format dates consistently
+// Helper function to format dates consistently using ISO format
 const formatDate = (date: Date): string => {
-  return date.toLocaleDateString('en-GB'); // Format: DD/MM/YYYY
+  return formatISODate(date);
 };
 
 const PrintableTM30Form: React.FC<PrintableTM30FormProps> = ({ reportItems, bookings = {} }) => {
@@ -48,8 +49,7 @@ const PrintableTM30Form: React.FC<PrintableTM30FormProps> = ({ reportItems, book
               const fromDate = formatDate(booking.checkInDate);
               
               // Calculate checkout date based on number of nights
-              const checkoutDate = new Date(booking.checkInDate);
-              checkoutDate.setDate(checkoutDate.getDate() + booking.numberOfNights);
+              const checkoutDate = calculateCheckoutDate(booking.checkInDate, booking.numberOfNights);
               const toDate = formatDate(checkoutDate);
               
               periodOfStay = `${fromDate} - ${toDate}`;
