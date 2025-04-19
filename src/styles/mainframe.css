@@ -65,8 +65,10 @@ body, html {
 
 .screen-id {
   position: absolute;
-  top: 0;
-  right: 0;
+  top: 0.5vh;
+  right: 1vw;
+  font-size: 0.9rem;
+  color: var(--terminal-amber);
 }
 
 .panel {
@@ -132,19 +134,21 @@ body, html {
   background-color: var(--terminal-dark-green);
 }
 
+/* Update function keys spacing for additional keys */
 .function-keys {
   border-top: 2px solid var(--terminal-green);
   margin-top: 2vh;
   padding-top: 1vh;
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
   font-size: 1rem;
   flex-wrap: wrap;
   gap: 10px;
+  padding: 1vh 2vw;
 }
 
 .key {
-  margin-right: 5px;
+  margin-right: 15px;
 }
 
 /* CRT screen effect */
@@ -201,6 +205,20 @@ body, html {
   align-items: center;
 }
 
+/* Menu option styling */
+.menu-option-unavailable {
+  color: var(--terminal-amber);
+  opacity: 0.8;
+  cursor: not-allowed;
+}
+
+.option-status {
+  margin-left: 1rem;
+  font-size: 0.9rem;
+  font-style: italic;
+  color: var(--terminal-amber);
+}
+
 .option-number {
   font-weight: bold;
   margin-right: 1vw;
@@ -221,16 +239,113 @@ body, html {
   padding: 0 0.5vw;
   margin-left: 1vw;
   text-transform: uppercase;
-  caret-color: var(--terminal-green);
-  width: 2rem;
+  width: 0.5rem;
+  position: relative;
 }
+
+.terminal-input.text-input {
+  width: 250px;
+}
+
+.terminal-input.number-input {
+  width: 60px;
+}
+
 
 .terminal-input:focus {
   outline: none;
+  animation: blink-background 1s infinite;
+}
+
+.terminal-select {
+  background-color: var(--terminal-black);
+  color: var(--terminal-green);
+  border: none;
+  border-bottom: 1px solid var(--terminal-green);
+  font-family: inherit;
+  font-size: inherit;
+  text-transform: uppercase;
+  min-width: 150px;
+  margin-left: 1vw;
+}
+
+.terminal-select:focus {
+  outline: none;
+  background-color: var(--terminal-dark-green);
 }
 
 .status-message {
   margin-top: 4vh;
   color: var(--terminal-amber);
   font-weight: bold;
+}
+
+/* Guest table styling */
+.guest-table {
+  width: 100%;
+  border-collapse: collapse;
+  color: var(--terminal-green);
+  margin-bottom: 2vh;
+}
+
+.guest-table th {
+  text-align: left;
+  border-bottom: 1px solid var(--terminal-green);
+  padding: 0.5vh 1vw;
+}
+
+.guest-table td {
+  padding: 0.5vh 1vw;
+}
+
+.pagination {
+  margin: 2vh 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: var(--terminal-amber);
+}
+
+/* Guest details styling */
+.guest-details {
+  display: flex;
+  flex-direction: column;
+  gap: 2vh;
+}
+
+.data-section {
+  margin-bottom: 2vh;
+}
+
+.data-section h3 {
+  color: var(--terminal-amber);
+  border-bottom: 1px solid var(--terminal-amber);
+  padding-bottom: 0.5vh;
+  margin-bottom: 1vh;
+  font-size: 1.1rem;
+}
+
+.value {
+  color: var(--terminal-green);
+  font-weight: bold;
+}
+
+/* Confirmation dialog styling */
+.confirmation-message {
+  text-align: center;
+  margin: 3vh 0;
+  line-height: 2;
+}
+
+.guest-name {
+  font-size: 1.5rem;
+  color: var(--terminal-amber);
+  font-weight: bold;
+  margin: 2vh 0;
+}
+
+.confirmation-options {
+  display: flex;
+  justify-content: center;
+  margin: 4vh 0;
 }
