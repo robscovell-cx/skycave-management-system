@@ -26,6 +26,10 @@ This application is proudly "vibe-coded," meaning the aesthetic and user experie
 
 The green-on-black terminal interface, keyboard-centric navigation, and "mainframe" aesthetic are all intentional design choices to create an immersive retro computing experience.
 
+### Human-added note
+
+Claude is very proud of this vibe-coded application. Unfortunately, under the hood, it is a bit of a mess. This was, for me, an interesting experiment.
+
 ## Technical Details
 
 - Built with React and TypeScript
