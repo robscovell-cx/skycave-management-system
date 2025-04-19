@@ -204,7 +204,7 @@ const TM30Report = ({ guests, onReturn }: TM30ReportProps) => {
     dateOfArrivalInThailand: 120,
     expiryDateOfStay: 120,
     pointOfEntry: 120,
-    relationship: 100,
+    relationship: 200, // Doubled from 100 to 200
   };
   
   return (
@@ -212,7 +212,6 @@ const TM30Report = ({ guests, onReturn }: TM30ReportProps) => {
       <div className="header">
         <div className="title">TM30 FOREIGN GUEST REPORT</div>
         <div className="datetime">{currentDate} {currentTime}</div>
-        <div className="screen-id">TM30</div>
       </div>
 
       <div className="main-content">
