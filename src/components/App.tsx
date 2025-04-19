@@ -8,12 +8,49 @@ import { Guest } from '../types/guest'
 // Define screens for navigation
 type Screen = 'main' | 'checkIn' | 'checkOut' | 'viewGuests';
 
+// Local storage key for guest data
+const GUESTS_STORAGE_KEY = 'skycave_guests';
+
 function App() {
   const [currentDate, setCurrentDate] = useState('')
   const [currentTime, setCurrentTime] = useState('')
   const [selectedOption, setSelectedOption] = useState('')
   const [currentScreen, setCurrentScreen] = useState<Screen>('main')
-  const [guests, setGuests] = useState<Partial<Guest>[]>([])
+  // Initialize guests from localStorage if available
+  const [guests, setGuests] = useState<Partial<Guest>[]>(() => {
+    // Try to get stored guest data
+    const storedGuests = localStorage.getItem(GUESTS_STORAGE_KEY);
+    if (storedGuests) {
+      try {
+        // Parse the stored JSON string
+        const parsedGuests = JSON.parse(storedGuests);
+        // Fix dates which are stored as strings
+        return parsedGuests.map((guest: any) => ({
+          ...guest,
+          bookings: guest.bookings?.map((booking: any) => ({
+            ...booking,
+            checkInDate: booking.checkInDate ? new Date(booking.checkInDate) : undefined,
+            checkOutDate: booking.checkOutDate ? new Date(booking.checkOutDate) : undefined,
+            dateMade: booking.dateMade ? new Date(booking.dateMade) : undefined,
+          })),
+          identification: guest.identification ? {
+            ...guest.identification,
+            expirationDate: guest.identification.expirationDate ? 
+              new Date(guest.identification.expirationDate) : undefined
+          } : undefined,
+        }));
+      } catch (error) {
+        console.error('Failed to parse guests from localStorage:', error);
+        return [];
+      }
+    }
+    return [];
+  });
+
+  // Save guests to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem(GUESTS_STORAGE_KEY, JSON.stringify(guests));
+  }, [guests]);
 
   useEffect(() => {
     // Function to update the date and time
