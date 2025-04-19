@@ -306,7 +306,6 @@ const TM30Report = ({ reportItems, onUpdateItem, onSubmitReport, onReturn }: TM3
                 
                 {areAllFieldsComplete() && !showConfirmation && selectedItemIndex < 0 && (
                   <div className="confirmation-options" style={{ marginTop: "20px" }}>
-                    <p>ALL FIELDS COMPLETE. DO YOU WANT TO SUBMIT THE TM30 REPORT?</p>
                     {showConfirmation ? (
                       <div className="input-field">
                         <span className="label">ENTER CHOICE (Y/N):</span>
@@ -366,7 +365,7 @@ const TM30Report = ({ reportItems, onUpdateItem, onSubmitReport, onReturn }: TM3
                 selectedItemIndex >= 0 ? 
                   'EDITING FIELD - PRESS ENTER TO CONFIRM, ESC TO CANCEL' : 
                   areAllFieldsComplete() ?
-                    'ALL FIELDS COMPLETE - PRESS ENTER TO SUBMIT' :
+                    '' :
                     'SELECT A FIELD TO EDIT - PRESS ESC TO RETURN'
               }
             </div>
