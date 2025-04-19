@@ -1,17 +1,17 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import '../styles/mainframe.css';
-import { TM30ReportItem } from '../types/guest';
+import { TM30ReportItem, Guest, Booking } from '../types/guest';
 import useDateTime from '../hooks/useDateTime';
-import PrintableTM30Form from './PrintableTM30Form';
 
 interface TM30ReportProps {
   reportItems: TM30ReportItem[];
+  guestBookings: Partial<Guest>[];
   onUpdateItem: (index: number, field: keyof TM30ReportItem, value: string) => void;
   onSubmitReport: () => void;
   onReturn: () => void;
 }
 
-const TM30Report = ({ reportItems, onUpdateItem, onSubmitReport, onReturn }: TM30ReportProps) => {
+const TM30Report = ({ reportItems, guestBookings, onUpdateItem, onSubmitReport, onReturn }: TM30ReportProps) => {
   // Get current date and time
   const [currentDate, currentTime] = useDateTime();
   
@@ -24,23 +24,209 @@ const TM30Report = ({ reportItems, onUpdateItem, onSubmitReport, onReturn }: TM3
   const [showConfirmation, setShowConfirmation] = useState<boolean>(false);
   const [confirmChoice, setConfirmChoice] = useState<'Y' | 'N' | ''>('');
   
-  const printableFormRef = useRef<HTMLDivElement>(null);
+  // Create a map of bookingIds to booking objects for quick access
+  const bookingsMap: Record<string, Booking> = {};
+  guestBookings.forEach(guest => {
+    guest.bookings?.forEach(booking => {
+      if (booking.bookingId) {
+        bookingsMap[booking.bookingId] = booking as Booking;
+      }
+    });
+  });
+  
+  // Helper function to format dates consistently
+  const formatDate = (date: Date): string => {
+    return date.toLocaleDateString('en-GB'); // Format: DD/MM/YYYY
+  };
   
   // Add function to handle printing
   const handlePrint = () => {
-    // Set the printable form to be visible before printing
-    if (printableFormRef.current) {
-      const originalStyle = printableFormRef.current.style.display;
-      printableFormRef.current.style.display = 'block';
+    // Create a new window for printing
+    const printWindow = window.open('', '_blank');
+    
+    if (printWindow) {
+      // Write print-specific HTML directly to the new window
+      printWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+          <head>
+            <title>TM30 Form - ${currentBookingId}</title>
+            <style>
+              /* Basic reset */
+              * { margin: 0; padding: 0; box-sizing: border-box; }
+              
+              /* Container */
+              .tm30-printable-container {
+                font-family: Arial, sans-serif;
+                width: 100%;
+                padding: 20mm 10mm;
+                background-color: white;
+                color: black;
+              }
+              
+              /* Header */
+              .tm30-printable-header {
+                text-align: center;
+                margin-bottom: 10mm;
+              }
+              
+              .tm30-printable-header h1 {
+                font-size: 18pt;
+                margin-bottom: 5mm;
+              }
+              
+              .tm30-printable-header h2, .tm30-printable-header h3 {
+                font-size: 16pt;
+                margin: 2mm 0;
+              }
+              
+              /* Table */
+              .tm30-printable-table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-bottom: 10mm;
+              }
+              
+              .tm30-printable-table th, .tm30-printable-table td {
+                border: 1px solid #000;
+                padding: 3mm;
+                text-align: center;
+                font-size: 10pt;
+              }
+              
+              .tm30-printable-table th {
+                background-color: #f9f9f9;
+                font-weight: bold;
+              }
+              
+              /* Footer */
+              .tm30-printable-footer {
+                margin-top: 20mm;
+              }
+              
+              .signature-section {
+                float: right;
+                text-align: center;
+                width: 80mm;
+              }
+              
+              .signature-line {
+                margin-bottom: 30mm;
+              }
+              
+              /* Column widths */
+              .col-no { width: 5%; }
+              .col-name { width: 15%; }
+              .col-nationality { width: 10%; }
+              .col-passport { width: 10%; }
+              .col-visa { width: 8%; }
+              .col-arrival { width: 8%; }
+              .col-expiry { width: 8%; }
+              .col-entry { width: 10%; }
+              .col-tm { width: 8%; }
+              .col-period { width: 10%; }
+              .col-relation { width: 8%; }
+              
+              @media print {
+                body { 
+                  background-color: white;
+                  padding: 0;
+                  margin: 0;
+                }
+              }
+            </style>
+          </head>
+          <body>
+            <div class="tm30-printable-container">
+              <div class="tm30-printable-header">
+                <h1>บัญชีรายชื่อคนต่างด้าวที่พักอาศัย</h1>
+                <h2>NAME OF ALIENS IN RESIDENCE</h2>
+                <h3>(IN BLOCK LETTERS)</h3>
+              </div>
+              <table class="tm30-printable-table">
+                <thead>
+                  <tr>
+                    <th class="col-no">ลำดับ<br/>NO.</th>
+                    <th class="col-name">ชื่อคนต่างด้าว<br/>Name and Surname</th>
+                    <th class="col-nationality">สัญชาติ<br/>Nationality</th>
+                    <th class="col-passport">หนังสือเดินทางเลขที่<br/>Passport Number</th>
+                    <th class="col-visa">ประเภทวีซ่า<br/>Type of Visa</th>
+                    <th class="col-arrival">วันเดินทางเข้า<br/>Date of Arrival</th>
+                    <th class="col-expiry">ครบกำหนดอนุญาต<br/>Expiry Date of Stay</th>
+                    <th class="col-entry">ช่องทางเข้า<br/>Point of Entry</th>
+                    <th class="col-tm">บัตรขาเข้าเลขที่<br/>Arrival Card T.M.No.</th>
+                    <th class="col-period">พักอาศัยระหว่าง วันที่...<br/>Period of stay From....to.....</th>
+                    <th class="col-relation">ความเกี่ยวพัน<br/>Relationship</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${reportItems.map((item, index) => {
+                    // Get booking information if available
+                    const booking = bookingsMap[item.bookingId];
+                    
+                    // Format period of stay using booking information
+                    let periodOfStay = '';
+                    if (booking) {
+                      const fromDate = formatDate(booking.checkInDate);
+                      
+                      // Calculate checkout date based on number of nights
+                      const checkoutDate = new Date(booking.checkInDate);
+                      checkoutDate.setDate(checkoutDate.getDate() + booking.numberOfNights);
+                      const toDate = formatDate(checkoutDate);
+                      
+                      periodOfStay = `From ${fromDate} To ${toDate}`;
+                    }
+                    
+                    return `
+                    <tr>
+                      <td class="col-no">${index + 1}</td>
+                      <td class="col-name">${item.nameAndSurname}</td>
+                      <td class="col-nationality">${item.nationality}</td>
+                      <td class="col-passport">${item.passportNumber}</td>
+                      <td class="col-visa">${item.typeOfVisa}</td>
+                      <td class="col-arrival">${item.dateOfArrivalInThailand}</td>
+                      <td class="col-expiry">${item.expiryDateOfStay}</td>
+                      <td class="col-entry">${item.pointOfEntry}</td>
+                      <td class="col-tm"></td>
+                      <td class="col-period">${periodOfStay}</td>
+                      <td class="col-relation">${item.relationship}</td>
+                    </tr>
+                  `}).join('')}
+                  ${[...Array(Math.max(0, 10 - reportItems.length))].map((_, i) => `
+                    <tr class="empty-row">
+                      <td class="col-no">${reportItems.length + i + 1}</td>
+                      <td class="col-name"></td>
+                      <td class="col-nationality"></td>
+                      <td class="col-passport"></td>
+                      <td class="col-visa"></td>
+                      <td class="col-arrival"></td>
+                      <td class="col-expiry"></td>
+                      <td class="col-entry"></td>
+                      <td class="col-tm"></td>
+                      <td class="col-period"></td>
+                      <td class="col-relation"></td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+              <div class="tm30-printable-footer">
+                <div class="signature-section">
+                  <div class="signature-line">ลายมือชื่อ................................................ผู้รับรองรายการ</div>
+                  <div class="signature-name">(................................................)</div>
+                </div>
+              </div>
+            </div>
+          </body>
+        </html>
+      `);
       
-      // Print the window
-      window.print();
+      printWindow.document.close();
       
-      // Reset to original style after printing
+      // Wait for content to load then print
       setTimeout(() => {
-        if (printableFormRef.current) {
-          printableFormRef.current.style.display = originalStyle;
-        }
+        printWindow.print();
+        printWindow.oncancel = () => printWindow.close();
+        printWindow.onafterprint = () => printWindow.close();
       }, 500);
     }
   };
@@ -343,7 +529,7 @@ const TM30Report = ({ reportItems, onUpdateItem, onSubmitReport, onReturn }: TM3
                       textTransform: 'uppercase'
                     }}
                   >
-                    PRINT TM30 FORM
+                    PRESS P TO PRINT THE TM30 FORM
                   </button>
                 </div>
               </>
@@ -359,11 +545,6 @@ const TM30Report = ({ reportItems, onUpdateItem, onSubmitReport, onReturn }: TM3
         <div className="key">SHIFT+TAB=PREV FIELD</div>
         <div className="key">↑↓=NAVIGATE</div>
         <div className="key">P=PRINT FORM</div>
-      </div>
-      
-      {/* Hidden Printable Form */}
-      <div ref={printableFormRef} style={{ display: 'none' }}>
-        <PrintableTM30Form reportItems={reportItems} />
       </div>
     </div>
   );

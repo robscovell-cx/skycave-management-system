@@ -1,5 +1,6 @@
 /* Styles for printable TM30 form */
 
+/* Print-specific styles */
 @media print {
   body * {
     visibility: hidden;
@@ -7,7 +8,8 @@
   
   .tm30-printable-container,
   .tm30-printable-container * {
-    visibility: visible;
+    visibility: visible !important;
+    display: block !important;
   }
   
   .tm30-printable-container {
@@ -15,19 +17,19 @@
     left: 0;
     top: 0;
     width: 100%;
-    height: 100%;
-    margin: 0;
-    padding: 0;
+    padding: 20px;
+    background-color: white !important;
+    color: black !important;
   }
   
   /* Hide terminal UI when printing */
-  .terminal, .header, .panel-title, .function-keys {
+  .terminal, .function-keys {
     display: none !important;
   }
 }
 
+/* Regular styles for the printable form */
 .tm30-printable-container {
-  display: none; /* Hidden by default, shown only when printing */
   font-family: 'Arial', sans-serif;
   width: 100%;
   max-width: 297mm; /* A4 width */
@@ -35,6 +37,7 @@
   padding: 10mm;
   background-color: white;
   color: black;
+  box-sizing: border-box;
 }
 
 .tm30-printable-header {

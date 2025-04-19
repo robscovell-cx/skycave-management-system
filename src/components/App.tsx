@@ -289,6 +289,7 @@ function App() {
   } else if (currentScreen === 'tm30Report') {
     return <TM30Report 
       reportItems={tm30ReportItems}
+      guestBookings={guests}
       onUpdateItem={handleUpdateTm30Item}
       onSubmitReport={handleSubmitTm30Report}
       onReturn={handleReturn} 

@@ -1,12 +1,18 @@
 import React from 'react';
-import { TM30ReportItem } from '../types/guest';
+import { TM30ReportItem, Booking } from '../types/guest';
 import '../styles/printableTM30.css';
 
 interface PrintableTM30FormProps {
   reportItems: TM30ReportItem[];
+  bookings?: Record<string, Booking>; // Map of bookingIds to Booking objects
 }
 
-const PrintableTM30Form: React.FC<PrintableTM30FormProps> = ({ reportItems }) => {
+// Helper function to format dates consistently
+const formatDate = (date: Date): string => {
+  return date.toLocaleDateString('en-GB'); // Format: DD/MM/YYYY
+};
+
+const PrintableTM30Form: React.FC<PrintableTM30FormProps> = ({ reportItems, bookings = {} }) => {
   return (
     <div className="tm30-printable-container">
       <div className="tm30-printable-header">
@@ -32,21 +38,39 @@ const PrintableTM30Form: React.FC<PrintableTM30FormProps> = ({ reportItems }) =>
           </tr>
         </thead>
         <tbody>
-          {reportItems.map((item, index) => (
-            <tr key={index}>
-              <td className="col-no">{index + 1}</td>
-              <td className="col-name">{item.nameAndSurname}</td>
-              <td className="col-nationality">{item.nationality}</td>
-              <td className="col-passport">{item.passportNumber}</td>
-              <td className="col-visa">{item.typeOfVisa}</td>
-              <td className="col-arrival">{item.dateOfArrivalInThailand}</td>
-              <td className="col-expiry">{item.expiryDateOfStay}</td>
-              <td className="col-entry">{item.pointOfEntry}</td>
-              <td className="col-tm">{/* TM Number not collected */}</td>
-              <td className="col-period">{/* Period - could be calculated from booking */}</td>
-              <td className="col-relation">{item.relationship}</td>
-            </tr>
-          ))}
+          {reportItems.map((item, index) => {
+            // Get booking information if available
+            const booking = bookings[item.bookingId];
+            
+            // Format period of stay if booking information exists
+            let periodOfStay = '';
+            if (booking) {
+              const fromDate = formatDate(booking.checkInDate);
+              
+              // Calculate checkout date based on number of nights
+              const checkoutDate = new Date(booking.checkInDate);
+              checkoutDate.setDate(checkoutDate.getDate() + booking.numberOfNights);
+              const toDate = formatDate(checkoutDate);
+              
+              periodOfStay = `${fromDate} - ${toDate}`;
+            }
+            
+            return (
+              <tr key={index}>
+                <td className="col-no">{index + 1}</td>
+                <td className="col-name">{item.nameAndSurname}</td>
+                <td className="col-nationality">{item.nationality}</td>
+                <td className="col-passport">{item.passportNumber}</td>
+                <td className="col-visa">{item.typeOfVisa}</td>
+                <td className="col-arrival">{item.dateOfArrivalInThailand}</td>
+                <td className="col-expiry">{item.expiryDateOfStay}</td>
+                <td className="col-entry">{item.pointOfEntry}</td>
+                <td className="col-tm">{/* TM Number not collected */}</td>
+                <td className="col-period">{periodOfStay}</td>
+                <td className="col-relation">{item.relationship}</td>
+              </tr>
+            );
+          })}
           {/* Add empty rows to fill out the form */}
           {[...Array(Math.max(0, 10 - reportItems.length))].map((_, i) => (
             <tr key={`empty-${i}`} className="empty-row">
