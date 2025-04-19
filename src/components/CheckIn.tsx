@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import '../styles/mainframe.css';
-import { Guest, Identification } from '../types/guest';
+import { Guest } from '../types/guest';
 
 interface CheckInProps {
   onReturn: () => void;
@@ -39,12 +39,8 @@ const CheckIn = ({ onReturn, onSubmit }: CheckInProps) => {
   const fields = [
     { id: 'firstName', label: 'FIRST NAME', maxLength: 20 },
     { id: 'lastName', label: 'LAST NAME', maxLength: 20 },
-    { id: 'nationality', label: 'NATIONALITY', maxLength: 20 },
     { id: 'contactEmail', label: 'EMAIL', maxLength: 30, path: 'contact.email' },
     { id: 'contactPhone', label: 'PHONE', maxLength: 15, path: 'contact.phone' },
-    { id: 'idType', label: 'ID TYPE', options: ['passport', 'driverLicense', 'idCard', 'other'], path: 'identification.type' },
-    { id: 'idNumber', label: 'ID NUMBER', maxLength: 20, path: 'identification.number' },
-    { id: 'idCountry', label: 'ISSUING COUNTRY', maxLength: 20, path: 'identification.issuingCountry' },
     { id: 'nights', label: 'NUMBER OF NIGHTS', type: 'number', min: 1, max: 365, path: 'bookings[0].numberOfNights' },
     { id: 'adults', label: 'ADULT GUESTS', type: 'number', min: 1, max: 10, path: 'bookings[0].numberOfGuests.adults' },
     { id: 'children', label: 'CHILD GUESTS', type: 'number', min: 0, max: 10, path: 'bookings[0].numberOfGuests.children' },
@@ -117,24 +113,7 @@ const CheckIn = ({ onReturn, onSubmit }: CheckInProps) => {
                   <span className="label" style={{ textAlign: 'right', paddingRight: '10px', width: '200px', display: 'inline-block' }}>
                     {field.label}:
                   </span>
-                  {field.options ? (
-                    <select
-                      className="terminal-select"
-                      value={
-                        field.path?.includes('identification.type') 
-                          ? (guestData.identification as Identification)?.type || ''
-                          : ''
-                      }
-                      onChange={(e) => handleChange(e, field.id, field.path)}
-                      autoFocus={index === currentField}
-                    >
-                      {field.options.map(option => (
-                        <option key={option} value={option}>
-                          {option.toUpperCase()}
-                        </option>
-                      ))}
-                    </select>
-                  ) : field.type === 'number' ? (
+                  { field.type === 'number' ? (
                     <input
                       type="number"
                       className="terminal-input number-input"
