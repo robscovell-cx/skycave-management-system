@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import '../styles/mainframe.css';
 import { Guest } from '../types/guest';
 
