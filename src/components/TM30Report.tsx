@@ -195,6 +195,20 @@ const TM30Report = ({ guests, onReturn }: TM30ReportProps) => {
     }
   };
 
+  // Check if all fields are complete
+  const areAllFieldsComplete = (): boolean => {
+    return reportItems.every(item => 
+      item.nameAndSurname.trim() !== '' && 
+      item.nationality.trim() !== '' && 
+      item.passportNumber.trim() !== '' && 
+      item.typeOfVisa.trim() !== '' && 
+      item.dateOfArrivalInThailand.trim() !== '' && 
+      item.expiryDateOfStay.trim() !== '' && 
+      item.pointOfEntry.trim() !== '' && 
+      item.relationship.trim() !== ''
+    );
+  };
+
   // Define table column widths
   const columnWidths = {
     nameAndSurname: 200,
@@ -322,7 +336,10 @@ const TM30Report = ({ guests, onReturn }: TM30ReportProps) => {
             <div className="status-message">
               {selectedItemIndex >= 0 ? 
                 'EDITING FIELD - PRESS ENTER TO CONFIRM, ESC TO CANCEL' : 
-                'SELECT A FIELD TO EDIT - PRESS ESC TO RETURN'}
+                areAllFieldsComplete() ? 
+                  'ALL FIELDS COMPLETE - PRESS F10 TO SUBMIT REPORT' :
+                  'SELECT A FIELD TO EDIT - PRESS ESC TO RETURN'
+              }
             </div>
           </div>
         </div>
@@ -334,6 +351,7 @@ const TM30Report = ({ guests, onReturn }: TM30ReportProps) => {
         <div className="key">TAB=NEXT FIELD</div>
         <div className="key">SHIFT+TAB=PREV FIELD</div>
         <div className="key">↑↓=NAVIGATE</div>
+        {areAllFieldsComplete() && <div className="key">F10=SUBMIT</div>}
       </div>
     </div>
   );
