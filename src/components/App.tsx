@@ -4,13 +4,14 @@ import CheckIn from './CheckIn'
 import ViewGuests from './ViewGuests'
 import CheckOut from './CheckOut'
 import TM30Report from './TM30Report'
-import { Guest } from '../types/guest'
+import { Guest, TM30ReportItem } from '../types/guest'
 
 // Define screens for navigation
 type Screen = 'main' | 'checkIn' | 'checkOut' | 'viewGuests' | 'tm30Report';
 
 // Local storage key for guest data
 const GUESTS_STORAGE_KEY = 'skycave_guests';
+const TM30_STORAGE_KEY = 'skycave_tm30_reports';
 
 function App() {
   const [currentDate, setCurrentDate] = useState('')
@@ -48,10 +49,30 @@ function App() {
     return [];
   });
 
+  // Add TM30 report state
+  const [tm30ReportItems, setTm30ReportItems] = useState<TM30ReportItem[]>(() => {
+    // Try to get stored TM30 data
+    const storedReports = localStorage.getItem(TM30_STORAGE_KEY);
+    if (storedReports) {
+      try {
+        return JSON.parse(storedReports);
+      } catch (error) {
+        console.error('Failed to parse TM30 reports from localStorage:', error);
+        return [];
+      }
+    }
+    return [];
+  });
+
   // Save guests to localStorage whenever they change
   useEffect(() => {
     localStorage.setItem(GUESTS_STORAGE_KEY, JSON.stringify(guests));
   }, [guests]);
+
+  // Save TM30 reports to localStorage when they change
+  useEffect(() => {
+    localStorage.setItem(TM30_STORAGE_KEY, JSON.stringify(tm30ReportItems));
+  }, [tm30ReportItems]);
 
   useEffect(() => {
     // Function to update the date and time
@@ -110,7 +131,7 @@ function App() {
     } else if (selectedOption === '3') {
       setCurrentScreen('viewGuests');
     } else if (selectedOption === '4') {
-      setCurrentScreen('tm30Report');
+      handleEnterTm30Screen();
     }
   };
 
@@ -144,6 +165,94 @@ function App() {
     setSelectedOption('');
   };
 
+  // Generate initial report items from guests data
+  function generateInitialReportItems(guests: Partial<Guest>[]): TM30ReportItem[] {
+    let items: TM30ReportItem[] = [];
+    
+    guests.forEach(guest => {
+      // Add the main guest
+      if (guest.firstName && guest.lastName) {
+        items.push({
+          nameAndSurname: `${guest.firstName} ${guest.lastName}`,
+          nationality: guest.nationality || '',
+          passportNumber: guest.identification?.number || '',
+          typeOfVisa: '',
+          dateOfArrivalInThailand: '',
+          expiryDateOfStay: '',
+          pointOfEntry: '',
+          relationship: 'PRIMARY',
+        });
+        
+        // Add accompanying adults and children if any
+        const totalGuests = guest.bookings?.[0]?.numberOfGuests;
+        if (totalGuests) {
+          // Add additional adults (subtract 1 for the main guest)
+          for (let i = 1; i < (totalGuests.adults || 1); i++) {
+            items.push({
+              nameAndSurname: `ADULT ${i}`,
+              nationality: '',
+              passportNumber: '',
+              typeOfVisa: '',
+              dateOfArrivalInThailand: '',
+              expiryDateOfStay: '',
+              pointOfEntry: '',
+              relationship: 'ACCOMPANYING',
+            });
+          }
+          
+          // Add children
+          for (let i = 1; i <= (totalGuests.children || 0); i++) {
+            items.push({
+              nameAndSurname: `CHILD ${i}`,
+              nationality: '',
+              passportNumber: '',
+              typeOfVisa: '',
+              dateOfArrivalInThailand: '',
+              expiryDateOfStay: '',
+              pointOfEntry: '',
+              relationship: 'CHILD',
+            });
+          }
+        }
+      }
+    });
+    
+    return items;
+  }
+
+  // Handle updating TM30 report item
+  const handleUpdateTm30Item = (index: number, field: keyof TM30ReportItem, value: string) => {
+    setTm30ReportItems(prev => {
+      const updated = [...prev];
+      if (updated[index]) {
+        updated[index] = {
+          ...updated[index],
+          [field]: value
+        };
+      }
+      return updated;
+    });
+  };
+
+  // Handle submitting TM30 report
+  const handleSubmitTm30Report = () => {
+    // In a real app, you'd submit the data to a server here
+    console.log('TM30 Report submitted:', tm30ReportItems);
+    // Clear the report items after submission if needed
+    // setTm30ReportItems([]);
+    // Return to main menu
+    setCurrentScreen('main');
+  };
+
+  // Initialize TM30 reports when entering the TM30 screen
+  const handleEnterTm30Screen = () => {
+    // Only initialize if there are no existing report items
+    if (tm30ReportItems.length === 0) {
+      setTm30ReportItems(generateInitialReportItems(guests));
+    }
+    setCurrentScreen('tm30Report');
+  };
+
   // Render appropriate screen based on current state
   if (currentScreen === 'checkIn') {
     return <CheckIn onReturn={handleReturn} onSubmit={handleGuestCheckIn} />;
@@ -156,7 +265,12 @@ function App() {
       onCancel={handleCancelCheckOut}
     />;
   } else if (currentScreen === 'tm30Report') {
-    return <TM30Report guests={guests} onReturn={handleReturn} />;
+    return <TM30Report 
+      reportItems={tm30ReportItems}
+      onUpdateItem={handleUpdateTm30Item}
+      onSubmitReport={handleSubmitTm30Report}
+      onReturn={handleReturn} 
+    />;
   }
 
   // Main menu screen

@@ -1,81 +1,67 @@
 import { useState, useEffect } from 'react';
 import '../styles/mainframe.css';
-import { Guest, TM30ReportItem } from '../types/guest';
+import { TM30ReportItem } from '../types/guest';
 import useDateTime from '../hooks/useDateTime';
 
 interface TM30ReportProps {
-  guests: Partial<Guest>[];
+  reportItems: TM30ReportItem[];
+  onUpdateItem: (index: number, field: keyof TM30ReportItem, value: string) => void;
+  onSubmitReport: () => void;
   onReturn: () => void;
 }
 
-const TM30Report = ({ guests, onReturn }: TM30ReportProps) => {
+const TM30Report = ({ reportItems, onUpdateItem, onSubmitReport, onReturn }: TM30ReportProps) => {
   // Get current date and time
   const [currentDate, currentTime] = useDateTime();
   
-  // State to hold TM30 report items
-  const [reportItems, setReportItems] = useState<TM30ReportItem[]>(generateInitialReportItems(guests));
+  // Local UI state
   const [selectedItemIndex, setSelectedItemIndex] = useState<number>(-1);
   const [currentField, setCurrentField] = useState<string>('');
   const [editValue, setEditValue] = useState<string>('');
   
-  // Generate initial report items from guests data
-  function generateInitialReportItems(guests: Partial<Guest>[]): TM30ReportItem[] {
-    let items: TM30ReportItem[] = [];
-    
-    guests.forEach(guest => {
-      // Add the main guest
-      if (guest.firstName && guest.lastName) {
-        items.push({
-          nameAndSurname: `${guest.firstName} ${guest.lastName}`,
-          nationality: guest.nationality || '',
-          passportNumber: guest.identification?.number || '',
-          typeOfVisa: '',
-          dateOfArrivalInThailand: '',
-          expiryDateOfStay: '',
-          pointOfEntry: '',
-          relationship: 'PRIMARY',
-        });
-        
-        // Add accompanying adults and children if any
-        const totalGuests = guest.bookings?.[0]?.numberOfGuests;
-        if (totalGuests) {
-          // Add additional adults (subtract 1 for the main guest)
-          for (let i = 1; i < (totalGuests.adults || 1); i++) {
-            items.push({
-              nameAndSurname: `ADULT ${i}`,
-              nationality: '',
-              passportNumber: '',
-              typeOfVisa: '',
-              dateOfArrivalInThailand: '',
-              expiryDateOfStay: '',
-              pointOfEntry: '',
-              relationship: 'ACCOMPANYING',
-            });
-          }
-          
-          // Add children
-          for (let i = 1; i <= (totalGuests.children || 0); i++) {
-            items.push({
-              nameAndSurname: `CHILD ${i}`,
-              nationality: '',
-              passportNumber: '',
-              typeOfVisa: '',
-              dateOfArrivalInThailand: '',
-              expiryDateOfStay: '',
-              pointOfEntry: '',
-              relationship: 'CHILD',
-            });
-          }
-        }
-      }
-    });
-    
-    return items;
-  }
-  
+  // Add state for confirmation
+  const [showConfirmation, setShowConfirmation] = useState<boolean>(false);
+  const [confirmChoice, setConfirmChoice] = useState<'Y' | 'N' | ''>('');
+
+  // Check if all fields are complete
+  const areAllFieldsComplete = (): boolean => {
+    return reportItems.every(item => 
+      item.nameAndSurname.trim() !== '' && 
+      item.nationality.trim() !== '' && 
+      item.passportNumber.trim() !== '' && 
+      item.typeOfVisa.trim() !== '' && 
+      item.dateOfArrivalInThailand.trim() !== '' && 
+      item.expiryDateOfStay.trim() !== '' && 
+      item.pointOfEntry.trim() !== '' && 
+      item.relationship.trim() !== ''
+    );
+  };
+
   // Handle key events
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      // Handle confirmation dialog keys
+      if (showConfirmation) {
+        if (e.key.toLowerCase() === 'y') {
+          setConfirmChoice('Y');
+        } else if (e.key.toLowerCase() === 'n') {
+          setConfirmChoice('N');
+        } else if (e.key === 'Enter') {
+          if (confirmChoice === 'Y') {
+            // Submit report and return to main menu
+            onSubmitReport();
+          } else if (confirmChoice === 'N') {
+            // Cancel confirmation
+            setShowConfirmation(false);
+            setConfirmChoice('');
+          }
+        } else if (e.key === 'Escape') {
+          setShowConfirmation(false);
+          setConfirmChoice('');
+        }
+        return;
+      }
+
       if (e.key === 'Escape') {
         if (selectedItemIndex >= 0) {
           // Exit edit mode
@@ -93,9 +79,14 @@ const TM30Report = ({ guests, onReturn }: TM30ReportProps) => {
         if (selectedItemIndex < reportItems.length - 1) {
           setSelectedItemIndex(prev => prev + 1);
         }
-      } else if (e.key === 'Enter' && selectedItemIndex >= 0 && currentField) {
-        // Update the field value
-        updateFieldValue();
+      } else if (e.key === 'Enter') {
+        if (selectedItemIndex >= 0 && currentField) {
+          // Update field value
+          updateFieldValue();
+        } else if (areAllFieldsComplete()) {
+          // Show confirmation when not in edit mode and fields are complete
+          setShowConfirmation(true);
+        }
       } else if (e.key === 'Tab') {
         // Prevent default tab behavior
         e.preventDefault();
@@ -148,7 +139,7 @@ const TM30Report = ({ guests, onReturn }: TM30ReportProps) => {
     
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [onReturn, selectedItemIndex, currentField, reportItems.length, editValue, reportItems]);
+  }, [onReturn, onSubmitReport, selectedItemIndex, currentField, reportItems.length, editValue, reportItems, showConfirmation, confirmChoice]);
   
   // Handle selecting a field for editing
   const handleSelectField = (index: number, field: keyof TM30ReportItem) => {
@@ -157,17 +148,11 @@ const TM30Report = ({ guests, onReturn }: TM30ReportProps) => {
     setEditValue(reportItems[index][field]);
   };
   
-  // Update the field value in the reportItems state
+  // Update the field value
   const updateFieldValue = (moveNext = true) => {
     if (selectedItemIndex >= 0 && currentField) {
-      setReportItems(prev => {
-        const updated = [...prev];
-        updated[selectedItemIndex] = {
-          ...updated[selectedItemIndex],
-          [currentField]: editValue
-        };
-        return updated;
-      });
+      // Update the item in the parent component
+      onUpdateItem(selectedItemIndex, currentField as keyof TM30ReportItem, editValue);
       
       // If moveNext is true, automatically advance to the next field
       if (moveNext) {
@@ -193,20 +178,6 @@ const TM30Report = ({ guests, onReturn }: TM30ReportProps) => {
         }
       }
     }
-  };
-
-  // Check if all fields are complete
-  const areAllFieldsComplete = (): boolean => {
-    return reportItems.every(item => 
-      item.nameAndSurname.trim() !== '' && 
-      item.nationality.trim() !== '' && 
-      item.passportNumber.trim() !== '' && 
-      item.typeOfVisa.trim() !== '' && 
-      item.dateOfArrivalInThailand.trim() !== '' && 
-      item.expiryDateOfStay.trim() !== '' && 
-      item.pointOfEntry.trim() !== '' && 
-      item.relationship.trim() !== ''
-    );
   };
 
   // Define table column widths
@@ -237,108 +208,166 @@ const TM30Report = ({ guests, onReturn }: TM30ReportProps) => {
                 NO GUESTS CURRENTLY CHECKED IN
               </div>
             ) : (
-              <div className="tm30-table">
-                <style>
-                  {`
-                    .tm30-table {
-                      overflow-x: auto;
-                      white-space: nowrap;
-                    }
-                    
-                    .tm30-table-header {
-                      display: flex;
-                      border-bottom: 1px solid var(--terminal-green);
-                      padding-bottom: 8px;
-                      margin-bottom: 8px;
-                      font-weight: bold;
-                    }
-                    
-                    .tm30-table-row {
-                      display: flex;
-                      padding: 4px 0;
-                      cursor: pointer;
-                    }
-                    
-                    .tm30-table-row:hover {
-                      background-color: var(--terminal-dark-green);
-                    }
-                    
-                    .tm30-table-row.selected {
-                      background-color: var(--terminal-dark-green);
-                    }
-                    
-                    .tm30-table-cell {
-                      padding: 0 10px;
-                      overflow: hidden;
-                      text-overflow: ellipsis;
-                    }
-                    
-                    .tm30-table-cell.editing {
-                      background-color: var(--terminal-dark-green);
-                    }
-                    
-                    .tm30-input {
-                      background: none;
-                      border: none;
-                      color: var(--terminal-green);
-                      font-family: inherit;
-                      font-size: inherit;
-                      width: 100%;
-                      outline: none;
-                    }
-                  `}
-                </style>
-                
-                <div className="tm30-table-header">
-                  <div className="tm30-table-cell" style={{ width: columnWidths.nameAndSurname }}>NAME & SURNAME</div>
-                  <div className="tm30-table-cell" style={{ width: columnWidths.nationality }}>NATIONALITY</div>
-                  <div className="tm30-table-cell" style={{ width: columnWidths.passportNumber }}>PASSPORT NO.</div>
-                  <div className="tm30-table-cell" style={{ width: columnWidths.typeOfVisa }}>VISA TYPE</div>
-                  <div className="tm30-table-cell" style={{ width: columnWidths.dateOfArrivalInThailand }}>ARRIVAL DATE</div>
-                  <div className="tm30-table-cell" style={{ width: columnWidths.expiryDateOfStay }}>EXPIRY DATE</div>
-                  <div className="tm30-table-cell" style={{ width: columnWidths.pointOfEntry }}>ENTRY POINT</div>
-                  <div className="tm30-table-cell" style={{ width: columnWidths.relationship }}>RELATIONSHIP</div>
+              <>
+                <div className="tm30-table">
+                  <style>
+                    {`
+                      .tm30-table {
+                        overflow-x: auto;
+                        white-space: nowrap;
+                      }
+                      
+                      .tm30-table-header {
+                        display: flex;
+                        border-bottom: 1px solid var(--terminal-green);
+                        padding-bottom: 8px;
+                        margin-bottom: 8px;
+                        font-weight: bold;
+                      }
+                      
+                      .tm30-table-row {
+                        display: flex;
+                        padding: 4px 0;
+                        cursor: pointer;
+                      }
+                      
+                      .tm30-table-row:hover {
+                        background-color: var(--terminal-dark-green);
+                      }
+                      
+                      .tm30-table-row.selected {
+                        background-color: var(--terminal-dark-green);
+                      }
+                      
+                      .tm30-table-cell {
+                        padding: 0 10px;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                      }
+                      
+                      .tm30-table-cell.editing {
+                        background-color: var(--terminal-dark-green);
+                      }
+                      
+                      .tm30-input {
+                        background: none;
+                        border: none;
+                        color: var(--terminal-green);
+                        font-family: inherit;
+                        font-size: inherit;
+                        width: 100%;
+                        outline: none;
+                      }
+                    `}
+                  </style>
+                  
+                  <div className="tm30-table-header">
+                    <div className="tm30-table-cell" style={{ width: columnWidths.nameAndSurname }}>NAME & SURNAME</div>
+                    <div className="tm30-table-cell" style={{ width: columnWidths.nationality }}>NATIONALITY</div>
+                    <div className="tm30-table-cell" style={{ width: columnWidths.passportNumber }}>PASSPORT NO.</div>
+                    <div className="tm30-table-cell" style={{ width: columnWidths.typeOfVisa }}>VISA TYPE</div>
+                    <div className="tm30-table-cell" style={{ width: columnWidths.dateOfArrivalInThailand }}>ARRIVAL DATE</div>
+                    <div className="tm30-table-cell" style={{ width: columnWidths.expiryDateOfStay }}>EXPIRY DATE</div>
+                    <div className="tm30-table-cell" style={{ width: columnWidths.pointOfEntry }}>ENTRY POINT</div>
+                    <div className="tm30-table-cell" style={{ width: columnWidths.relationship }}>RELATIONSHIP</div>
+                  </div>
+                  
+                  <div className="tm30-table-body">
+                    {reportItems.map((item, index) => (
+                      <div 
+                        key={index} 
+                        className={`tm30-table-row ${index === selectedItemIndex ? 'selected' : ''}`}
+                        onClick={() => setSelectedItemIndex(index)}
+                      >
+                        {Object.entries(item).map(([key, value]) => (
+                          <div 
+                            key={key} 
+                            className={`tm30-table-cell ${selectedItemIndex === index && currentField === key ? 'editing' : ''}`}
+                            style={{ width: columnWidths[key as keyof TM30ReportItem] }}
+                            onClick={() => handleSelectField(index, key as keyof TM30ReportItem)}
+                          >
+                            {selectedItemIndex === index && currentField === key ? (
+                              <input 
+                                type="text" 
+                                className="tm30-input" 
+                                value={editValue}
+                                onChange={(e) => setEditValue(e.target.value)}
+                                autoFocus
+                              />
+                            ) : (
+                              value || '-'
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    ))}
+                  </div>
                 </div>
                 
-                <div className="tm30-table-body">
-                  {reportItems.map((item, index) => (
-                    <div 
-                      key={index} 
-                      className={`tm30-table-row ${index === selectedItemIndex ? 'selected' : ''}`}
-                      onClick={() => setSelectedItemIndex(index)}
-                    >
-                      {Object.entries(item).map(([key, value]) => (
-                        <div 
-                          key={key} 
-                          className={`tm30-table-cell ${selectedItemIndex === index && currentField === key ? 'editing' : ''}`}
-                          style={{ width: columnWidths[key as keyof TM30ReportItem] }}
-                          onClick={() => handleSelectField(index, key as keyof TM30ReportItem)}
-                        >
-                          {selectedItemIndex === index && currentField === key ? (
-                            <input 
-                              type="text" 
-                              className="tm30-input" 
-                              value={editValue}
-                              onChange={(e) => setEditValue(e.target.value)}
-                              autoFocus
-                            />
-                          ) : (
-                            value || '-'
-                          )}
-                        </div>
-                      ))}
+                {areAllFieldsComplete() && !showConfirmation && selectedItemIndex < 0 && (
+                  <div className="confirmation-options" style={{ marginTop: "20px" }}>
+                    <p>ALL FIELDS COMPLETE. DO YOU WANT TO SUBMIT THE TM30 REPORT?</p>
+                    {showConfirmation ? (
+                      <div className="input-field">
+                        <span className="label">ENTER CHOICE (Y/N):</span>
+                        <input 
+                          type="text" 
+                          className="terminal-input"
+                          value={confirmChoice}
+                          onChange={(e) => {
+                            const value = e.target.value.toUpperCase();
+                            if (value === 'Y' || value === 'N' || value === '') {
+                              setConfirmChoice(value as 'Y' | 'N' | '');
+                            }
+                          }}
+                          maxLength={1}
+                          autoFocus
+                        />
+                      </div>
+                    ) : (
+                      <div className="status-message">
+                        PRESS ENTER TO CONFIRM SUBMISSION
+                      </div>
+                    )}
+                  </div>
+                )}
+                
+                {showConfirmation && (
+                  <div className="confirmation-dialog">
+                    <div className="confirmation-message">
+                      <p>CONFIRM SUBMISSION OF TM30 REPORT?</p>
                     </div>
-                  ))}
-                </div>
-              </div>
+                    <div className="confirmation-options">
+                      <div className="input-field">
+                        <span className="label">ENTER CHOICE (Y/N):</span>
+                        <input 
+                          type="text" 
+                          className="terminal-input"
+                          value={confirmChoice}
+                          onChange={(e) => {
+                            const value = e.target.value.toUpperCase();
+                            if (value === 'Y' || value === 'N' || value === '') {
+                              setConfirmChoice(value as 'Y' | 'N' | '');
+                            }
+                          }}
+                          maxLength={1}
+                          autoFocus
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </>
             )}
             
             <div className="status-message">
-              {selectedItemIndex >= 0 ? 
-                'EDITING FIELD - PRESS ENTER TO CONFIRM, ESC TO CANCEL' : 
-                areAllFieldsComplete() ? 
-                  'ALL FIELDS COMPLETE - PRESS F10 TO SUBMIT REPORT' :
-                  'SELECT A FIELD TO EDIT - PRESS ESC TO RETURN'
+              {showConfirmation ? 
+                confirmChoice ? 'PRESS ENTER TO CONFIRM' : 'ENTER Y FOR YES, N FOR NO' :
+                selectedItemIndex >= 0 ? 
+                  'EDITING FIELD - PRESS ENTER TO CONFIRM, ESC TO CANCEL' : 
+                  areAllFieldsComplete() ?
+                    'ALL FIELDS COMPLETE - PRESS ENTER TO SUBMIT' :
+                    'SELECT A FIELD TO EDIT - PRESS ESC TO RETURN'
               }
             </div>
           </div>
@@ -351,7 +380,9 @@ const TM30Report = ({ guests, onReturn }: TM30ReportProps) => {
         <div className="key">TAB=NEXT FIELD</div>
         <div className="key">SHIFT+TAB=PREV FIELD</div>
         <div className="key">↑↓=NAVIGATE</div>
-        {areAllFieldsComplete() && <div className="key">F10=SUBMIT</div>}
+        {!showConfirmation && areAllFieldsComplete() && selectedItemIndex < 0 && (
+          <div className="key">ENTER=SUBMIT</div>
+        )}
       </div>
     </div>
   );
